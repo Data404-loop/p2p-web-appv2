@@ -3,757 +3,334 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binance P2P Price Analyzer Dashboard</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Binance P2P Clone - USDT/NPR</title>
     <style>
-        body {
-            background-color: #0b0e11;
-            color: #eaecef;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        /* Binance Standard Dark Mode Colors */
+        :root {
+            --bg-color: #12161a;
+            --card-bg: #1e2329;
+            --text-main: #eaecef;
+            --text-muted: #707a8a;
+            --binance-yellow: #fcd535;
+            --green: #0ecb81;
+            --red: #f6465d;
+            --border-color: #2b3139;
         }
-        .binance-dark { background-color: #181a20; }
-        .binance-card { background-color: #1e2329; }
-        .binance-yellow { color: #fcd535; }
-        .binance-bg-yellow { background-color: #fcd535; }
-        .binance-green { color: #0ecb81; }
-        .binance-bg-green { background-color: #0ecb81; }
-        .binance-red { color: #f6465d; }
-        .binance-bg-red { background-color: #f6465d; }
-        .border-binance { border-color: #2b3139; }
-        
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0b0e11; }
-        ::-webkit-scrollbar-thumb { background: #2b3139; border-radius: 3px; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .binance-logo {
+            color: var(--binance-yellow);
+            font-weight: bold;
+        }
+
+        /* Buy / Sell Tabs */
+        .tabs {
+            display: flex;
+            gap: 15px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 16px;
+            font-weight: 600;
+            padding: 10px 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active-buy {
+            color: var(--green);
+            border-bottom: 3px solid var(--green);
+        }
+
+        .tab-btn.active-sell {
+            color: var(--red);
+            border-bottom: 3px solid var(--red);
+        }
+
+        /* Filter Row Indicator */
+        .filters {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-item label {
+            color: var(--text-muted);
+        }
+
+        .filter-item select {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            min-width: 120px;
+        }
+
+        /* P2P Grid/Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        td {
+            padding: 18px 16px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        /* Merchant Details */
+        .merchant-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .m-name {
+            font-weight: 600;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .m-orders {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Price Formatting */
+        .price-container {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .fiat-unit {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+
+        /* Limits styling */
+        .limit-container div {
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        /* Payment Badge Colors */
+        .pm-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .esewa { background-color: rgba(96, 187, 70, 0.15); color: #60bb46; }
+        .khalti { background-color: rgba(92, 38, 142, 0.15); color: #8e44ad; }
+        .bank { background-color: rgba(52, 152, 219, 0.15); color: #3498db; }
+
+        /* Order Button styling */
+        .action-btn {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-buy-grid { background-color: var(--green); color: white; }
+        .btn-sell-grid { background-color: var(--red); color: white; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-    <!-- Top Navbar -->
-    <nav class="binance-dark border-b border-binance px-4 py-3 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-chart-line binance-yellow text-2xl"></i>
-                <div>
-                    <h1 class="text-lg font-bold tracking-wide flex items-center gap-2">
-                        Binance P2P <span class="text-xs binance-bg-yellow text-black px-1.5 py-0.5 rounded font-extrabold">LIVE PLATFORM</span>
-                    </h1>
-                    <p class="text-xs text-gray-400">USDT / NPR Live P2P Market API</p>
-                </div>
-            </div>
+<div class="container">
+    <h2><span class="binance-logo">Binance</span> P2P Market Clone</h2>
+    
+    <div class="tabs">
+        <button class="tab-btn active-buy" id="buyTab" onclick="switchTab('BUY')">Buy</button>
+        <button class="tab-btn" id="sellTab" onclick="switchTab('SELL')">Sell</button>
+    </div>
+
+    <div class="filters">
+        <div class="filter-item">
+            <label>Asset</label>
+            <select disabled><option>USDT</option></select>
+        </div>
+        <div class="filter-item">
+            <label>Fiat</label>
+            <select disabled><option>NPR</option></select>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Advertiser</th>
+                <th>Price</th>
+                <th>Available / Limit</th>
+                <th>Payment</th>
+                <th>Trade</th>
+            </tr>
+        </thead>
+        <tbody id="p2p-data-rows">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // 1. Live Environment मा देखाउन Demo Data Array (NPR standard components)
+    const sampleData = {
+        BUY: [
+            { name: "Crypto_Gorkha ✅", orders: "1,240 orders | 99.10%", price: "136.45", available: "850.00 USDT", min: "रु15,000", max: "रु115,000", payments: ["esewa", "bank"] },
+            { name: "Kathmandu_Traders", orders: "420 orders | 96.50%", price: "136.60", available: "1,500.00 USDT", min: "रु20,000", max: "रु200,000", payments: ["esewa", "khalti"] },
+            { name: "Apex_Crypto_NP ✅", orders: "890 orders | 100.00%", price: "136.85", available: "320.15 USDT", min: "रु5,000", max: "रु43,000", payments: ["bank"] }
+        ],
+        SELL: [
+            { name: "NP_Whale_Trader ✅", orders: "2,100 orders | 98.40%", price: "135.20", available: "2,300.00 USDT", min: "रु50,000", max: "रु300,000", payments: ["esewa", "bank"] },
+            { name: "Pokhara_Exchange", orders: "310 orders | 95.00%", price: "135.05", available: "400.00 USDT", min: "रु10,000", max: "रु54,000", payments: ["khalti"] },
+            { name: "Bhairahawa_Crypto", orders: "650 orders | 97.20%", price: "134.90", available: "1,050.00 USDT", min: "रु15,000", max: "रु140,000", payments: ["esewa"] }
+        ]
+    };
+
+    // 2. UI मा Table Data Render गर्ने Function
+    function renderData(mode) {
+        const tbody = document.getElementById('p2p-data-rows');
+        tbody.innerHTML = '';
+
+        const dataRows = sampleData[mode];
+
+        dataRows.forEach(row => {
+            let paymentBadges = row.payments.map(p => `<span class="pm-badge ${p}">${p.toUpperCase()}</span>`).join('');
+            let btnClass = mode === 'BUY' ? 'btn-buy-grid' : 'btn-sell-grid';
+            let btnText = mode === 'BUY' ? 'Buy USDT' : 'Sell USDT';
+
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <div class="merchant-info">
+                        <span class="m-name">${row.name}</span>
+                        <span class="m-orders">${row.orders}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="price-container">
+                        ${row.price}<span class="fiat-unit">NPR</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="limit-container">
+                        <div><span style="color:var(--text-muted)">Available:</span> ${row.available}</div>
+                        <div><span style="color:var(--text-muted)">Limit:</span> ${row.min} - ${row.max}</div>
+                    </div>
+                </td>
+                <td>${paymentBadges}</td>
+                <td>
+                    <button class="action-btn ${btnClass}">${btnText}</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 3. Buy र Sell Tab Switch गर्ने Logic
+    function switchTab(mode) {
+        const buyTab = document.getElementById('buyTab');
+        const sellTab = document.getElementById('sellTab');
+
+        if(mode === 'BUY') {
+            buyTab.className = 'tab-btn active-buy';
+            sellTab.className = 'tab-btn';
+        } else {
+            buyTab.className = 'tab-btn';
+            sellTab.className = 'tab-btn active-sell';
+        }
+        renderData(mode);
+    }
+
+    // 4. [DEVELOPMENT NOTE]: रियल API कसरि कनेक्ट गर्ने?
+    // यदि तपाईं आफ्नै Node.js वा Python ब्याकइन्ड (Proxy) बनाउनुहुन्छ भने, 
+    // यो function प्रयोग गरेर लाइव Binance डेटा ल्याउन सक्नुहुन्छ:
+    async function fetchLiveBinanceP2P(tradeType) {
+        const BACKEND_PROXY_URL = "http://localhost:5000/api/p2p"; // तपाईंको लोकल वा लाइभ ब्याकइन्ड proxy
+
+        try {
+            const response = await fetch(BACKEND_PROXY_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    page: 1,
+                    rows: 10,
+                    asset: "USDT",
+                    fiat: "NPR",
+                    tradeType: tradeType, // 'BUY' वा 'SELL'
+                    payTypes: [],
+                    publisherType: null
+                })
+            });
+            const resData = await response.json();
+            console.log("Live P2P Ads Array:", resData.data);
             
-            <!-- Navigation Tabs -->
-            <div class="flex bg-[#0b0e11] p-1 rounded-lg border border-binance text-sm">
-                <button onclick="UIController.switchTab('dashboard')" id="tab-dashboard" class="nav-tab px-4 py-1.5 rounded-md font-medium transition-all duration-200 bg-binance-card text-white">
-                    <i class="fa-solid fa-gauge mr-1.5"></i>Dashboard
-                </button>
-                <button onclick="UIController.switchTab('charts')" id="tab-charts" class="nav-tab px-4 py-1.5 rounded-md font-medium text-gray-400 transition-all duration-200 hover:text-white">
-                    <i class="fa-solid fa-chart-area mr-1.5"></i>Live Chart
-                </button>
-                <button onclick="UIController.switchTab('arbitrage')" id="tab-arbitrage" class="nav-tab px-4 py-1.5 rounded-md font-medium text-gray-400 transition-all duration-200 hover:text-white">
-                    <i class="fa-solid fa-scale-balanced mr-1.5"></i>Arbitrage
-                </button>
-                <button onclick="UIController.switchTab('history')" id="tab-history" class="nav-tab px-4 py-1.5 rounded-md font-medium text-gray-400 transition-all duration-200 hover:text-white">
-                    <i class="fa-solid fa-history mr-1.5"></i>History (7D)
-                </button>
-            </div>
+            // डेटा प्राप्त भइसकेपछि यो Array लाई loop गरेर UI मा `renderData` जस्तै गरी append गर्न सकिन्छ।
+        } catch (error) {
+            console.error("CORS वा नेटवर्क समस्या:", error);
+        }
+    }
+
+    // Initial Load default 'BUY'
+    renderData('BUY');
+</script>
 
-            <!-- Status Indicator -->
-            <div class="flex items-center gap-3 text-xs text-gray-400">
-                <div class="flex items-center gap-1.5 bg-[#1e2329] px-2.5 py-1.5 rounded border border-binance">
-                    <span id="refresh-indicator" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <span id="countdown-text">Awaiting Init...</span>
-                </div>
-                <button onclick="App.triggerManualFetch()" class="p-1.5 bg-[#2b3139] hover:bg-[#363e4a] rounded text-white transition">
-                    <i class="fa-solid fa-arrow-rotate-right"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content Area -->
-    <main class="flex-grow max-w-7xl w-full mx-auto p-4">
-        
-        <!-- Threshold Configuration Banner -->
-        <div class="binance-card border border-binance rounded-xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div>
-                <h3 class="font-semibold text-sm text-gray-200 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders binance-yellow"></i> Strategy & Signal Boundaries
-                </h3>
-                <p class="text-xs text-gray-400">Define localized alert points to auto-identify optimal execution target areas.</p>
-            </div>
-            <div class="flex items-center gap-4 text-xs">
-                <div>
-                    <label class="block text-gray-400 mb-1">Buy Trigger (Below)</label>
-                    <input type="number" id="buy-threshold" value="134.50" step="0.05" class="w-24 bg-[#0b0e11] border border-binance rounded px-2 py-1 text-white font-mono focus:outline-none focus:border-yellow-500">
-                </div>
-                <div>
-                    <label class="block text-gray-400 mb-1">Sell Trigger (Above)</label>
-                    <input type="number" id="sell-threshold" value="136.20" step="0.05" class="w-24 bg-[#0b0e11] border border-binance rounded px-2 py-1 text-white font-mono focus:outline-none focus:border-yellow-500">
-                </div>
-                <button onclick="App.updateThresholds()" class="self-end px-3 py-1 bg-[#2b3139] hover:bg-yellow-500 hover:text-black rounded font-medium transition h-7">Apply</button>
-            </div>
-        </div>
-
-        <!-- TAB: DASHBOARD -->
-        <div id="view-dashboard" class="tab-view space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="binance-card border border-binance rounded-xl p-4 relative overflow-hidden">
-                    <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider">Global System Average</p>
-                    <p class="text-2xl font-mono font-bold mt-1 text-white" id="stat-avg-price">NPR 0.00</p>
-                    <div class="absolute right-4 bottom-4 text-3xl text-gray-700 opacity-20"><i class="fa-solid fa-coins"></i></div>
-                </div>
-                <div class="binance-card border border-binance rounded-xl p-4 relative overflow-hidden">
-                    <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider">Top Spreading Limit Tier</p>
-                    <p class="text-2xl font-mono font-bold mt-1 binance-green" id="stat-best-limit">--</p>
-                    <div class="absolute right-4 bottom-4 text-3xl text-gray-700 opacity-20"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                </div>
-                <div class="binance-card border border-binance rounded-xl p-4 relative overflow-hidden">
-                    <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider">Monitored Order Matrices</p>
-                    <p class="text-2xl font-mono font-bold mt-1 binance-yellow" id="stat-active-limits">11 Active Layers</p>
-                    <div class="absolute right-4 bottom-4 text-3xl text-gray-700 opacity-20"><i class="fa-solid fa-network-wired"></i></div>
-                </div>
-            </div>
-
-            <!-- Main Live Analytics Matrix -->
-            <div class="binance-card border border-binance rounded-xl overflow-hidden">
-                <div class="px-4 py-3 bg-[#23282e] border-b border-binance flex justify-between items-center">
-                    <h2 class="font-bold text-sm tracking-wide flex items-center gap-2">
-                        <i class="fa-solid fa-table-list text-gray-400"></i> LIVE BINANCE P2P LIQUIDITY STREAMING MATRIX
-                    </h2>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead>
-                            <tr class="bg-[#14161a] text-gray-400 text-xs tracking-wider uppercase border-b border-binance">
-                                <th class="py-3.5 px-4 font-semibold">Limit Range (NPR)</th>
-                                <th class="py-3.5 px-4 font-semibold text-right">Current Rate</th>
-                                <th class="py-3.5 px-4 font-semibold text-right">Daily Low</th>
-                                <th class="py-3.5 px-4 font-semibold text-right">Daily High</th>
-                                <th class="py-3.5 px-4 font-semibold text-right">Avg Price</th>
-                                <th class="py-3.5 px-4 font-semibold text-center">Trend</th>
-                                <th class="py-3.5 px-4 font-semibold text-center">Action Zone</th>
-                            </tr>
-                        </thead>
-                        <tbody id="matrix-table-body" class="divide-y divide-binance font-mono">
-                            <!-- Populated dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: CHARTS -->
-        <div id="view-charts" class="tab-view hidden space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="binance-card border border-binance rounded-xl p-4 h-fit">
-                    <h3 class="font-bold text-sm mb-3 text-gray-200 uppercase tracking-wide">Select Isolated Limit Stream</h3>
-                    <div class="grid grid-cols-2 gap-2" id="chart-limit-selectors"></div>
-                </div>
-                <div class="binance-card border border-binance rounded-xl p-5 lg:col-span-2 flex flex-col justify-between">
-                    <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                        <div>
-                            <h3 class="font-bold text-base text-white" id="chart-title-display">Limit Structure: NPR 10,000</h3>
-                            <p class="text-xs text-gray-400">Live delta tracking contrasting local High, Low, and Current Spot price assets.</p>
-                        </div>
-                    </div>
-                    <div class="relative w-full h-80">
-                        <canvas id="livePriceChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: ARBITRAGE DETECTOR -->
-        <div id="view-arbitrage" class="tab-view hidden space-y-6">
-            <div class="binance-card border border-binance rounded-xl overflow-hidden">
-                <div class="px-4 py-3 bg-[#23282e] border-b border-binance">
-                    <h2 class="font-bold text-sm tracking-wide flex items-center gap-2">
-                        <i class="fa-solid fa-scale-balanced binance-yellow"></i> REAL-TIME CROSS-LIMIT SPREAD ARBITRAGE MATRIX
-                    </h2>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm whitespace-nowrap">
-                        <thead>
-                            <tr class="bg-[#14161a] text-gray-400 text-xs tracking-wider uppercase border-b border-binance">
-                                <th class="py-3.5 px-4 font-semibold">Limit Tier</th>
-                                <th class="py-3.5 px-4 font-semibold text-right">Estimated Buy (Ask)</th>
-                                <th class="py-3.5 px-4 font-semibold text-right">Estimated Sell (Bid)</th>
-                                <th class="py-3.5 px-4 font-semibold text-right">Absolute Spread</th>
-                                <th class="py-3.5 px-4 font-semibold text-right">Net Return (%)</th>
-                                <th class="py-3.5 px-4 font-semibold text-center">Arbitrage Score</th>
-                            </tr>
-                        </thead>
-                        <tbody id="arbitrage-table-body" class="divide-y divide-binance font-mono">
-                            <!-- Injected dynamically via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: HISTORICAL AUDIT LOG -->
-        <div id="view-history" class="tab-view hidden space-y-6">
-            <div class="binance-card border border-binance rounded-xl p-4 flex justify-between items-center flex-wrap gap-4">
-                <div>
-                    <h2 class="font-bold text-base text-white">7-Day Macro History Log</h2>
-                    <p class="text-xs text-gray-400">Day-end historical archives compiled from localized caching instances.</p>
-                </div>
-                <button onclick="StorageService.clearLogs()" class="px-3 py-1.5 bg-red-950/40 hover:bg-red-900/60 border border-red-800 text-red-200 text-xs rounded transition">
-                    <i class="fa-solid fa-trash-can mr-1.5"></i>Flush History Logs
-                </button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="history-grid-container"></div>
-        </div>
-
-    </main>
-
-    <footer class="binance-dark border-t border-binance py-4 text-center text-xs text-gray-500 mt-auto">
-        <p>© 2026 Binance P2P Price Analyzer Engine. Operational fully client-side on GitHub Pages via Public CORS Proxies.</p>
-    </footer>
-
-    <script>
-        const SYSTEM_LIMITS = [100, 200, 1000, 2000, 3000, 5000, 10000, 15000, 20000, 30000, 50000];
-        const AUTO_REFRESH_INTERVAL = 60000; // Updated to 60s to completely avoid public rate limits (429)
-
-        // MODULE 1: GENUINE LIVE BINANCE P2P INTERACTION ENGINE
-        const ApiService = {
-            async fetchP2PData() {
-                const resultsPayload = {};
-                // Using corsproxy.io wrapper to dynamically bridge and resolve client-side browser CORS restrictions
-                const proxyGateway = "https://corsproxy.io/?";
-                const endpointUrl = "https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search";
-
-                try {
-                    // Resolve tiers sequentially/concurrently with precise mapping logic
-                    const reqPromises = SYSTEM_LIMITS.map(async (limit) => {
-                        try {
-                            // 1. Fetch Top Order Advertisements for BUY configuration
-                            const buyResponse = await fetch(`${proxyGateway}${encodeURIComponent(endpointUrl)}`, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    "asset": "USDT",
-                                    "fiat": "NPR",
-                                    "merchantCheck": false,
-                                    "page": 1,
-                                    "payTypes": [],
-                                    "publisherType": null,
-                                    "rows": 3,
-                                    "tradeType": "BUY",
-                                    "transAmount": limit.toString()
-                                })
-                            });
-                            const buyData = await buyResponse.json();
-
-                            // 2. Fetch Top Order Advertisements for SELL configuration
-                            const sellResponse = await fetch(`${proxyGateway}${encodeURIComponent(endpointUrl)}`, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    "asset": "USDT",
-                                    "fiat": "NPR",
-                                    "merchantCheck": false,
-                                    "page": 1,
-                                    "payTypes": [],
-                                    "publisherType": null,
-                                    "rows": 3,
-                                    "tradeType": "SELL",
-                                    "transAmount": limit.toString()
-                                })
-                            });
-                            const sellData = await sellResponse.json();
-
-                            let extractedBuy = null;
-                            let extractedSell = null;
-
-                            if (buyData && buyData.data && buyData.data.length > 0) {
-                                extractedBuy = parseFloat(buyData.data[0].adv.price);
-                            }
-                            if (sellData && sellData.data && sellData.data.length > 0) {
-                                extractedSell = parseFloat(sellData.data[0].adv.price);
-                            }
-
-                            // Adaptive fail-safe structure to keep the dashboard stable if individual network requests choke
-                            if (!extractedBuy || isNaN(extractedBuy)) {
-                                extractedBuy = 135.50 + (Math.log10(limit) * 0.04);
-                            }
-                            if (!extractedSell || isNaN(extractedSell)) {
-                                extractedSell = extractedBuy * 1.0065;
-                            }
-
-                            return {
-                                limit,
-                                buyPrice: parseFloat(extractedBuy.toFixed(2)),
-                                sellPrice: parseFloat(extractedSell.toFixed(2)),
-                                timestamp: new Date().toLocaleTimeString()
-                            };
-
-                        } catch (err) {
-                            console.warn(`Error compiling direct response data for limit ${limit}: `, err);
-                            const fallbackBase = 135.20 + (Math.log10(limit) * 0.04);
-                            return {
-                                limit,
-                                buyPrice: parseFloat(fallbackBase.toFixed(2)),
-                                sellPrice: parseFloat((fallbackBase * 1.006).toFixed(2)),
-                                timestamp: new Date().toLocaleTimeString()
-                            };
-                        }
-                    });
-
-                    const unresolvedDataArray = await Promise.all(reqPromises);
-                    unresolvedDataArray.forEach(item => {
-                        resultsPayload[item.limit] = {
-                            buyPrice: item.buyPrice,
-                            sellPrice: item.sellPrice,
-                            timestamp: item.timestamp
-                        };
-                    });
-
-                    return { success: true, data: resultsPayload };
-                } catch (globalErr) {
-                    console.error("Critical processing breakdown inside structural API loop: ", globalErr);
-                    return { success: false, data: null };
-                }
-            }
-        };
-
-        // MODULE 2: STORAGE & PERSISTENCE FRAMEWORK
-        const StorageService = {
-            STORAGE_KEY: 'BINANCE_P2P_ANALYTICS_DATA_LIVE',
-            HISTORY_KEY: 'BINANCE_P2P_MACRO_HISTORY_LIVE',
-
-            getInitialState() {
-                const state = localStorage.getItem(this.STORAGE_KEY);
-                if (state) return JSON.parse(state);
-
-                const freshState = {};
-                SYSTEM_LIMITS.forEach(limit => {
-                    freshState[limit] = {
-                        limit: limit,
-                        currentPrice: null,
-                        currentSellPrice: null,
-                        dailyHigh: -Infinity,
-                        dailyLow: Infinity,
-                        runningSum: 0,
-                        datapointsCount: 0,
-                        avgPrice: 0,
-                        trend: 'STABLE',
-                        lastUpdated: '--',
-                        historyBuffer: []
-                    };
-                });
-                return freshState;
-            },
-
-            saveState(state) {
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
-            },
-
-            getMacroHistory() {
-                const logs = localStorage.getItem(this.HISTORY_KEY);
-                return logs ? JSON.parse(logs) : [];
-            },
-
-            archiveDailyMetrics(state) {
-                const currentHistory = this.getMacroHistory();
-                const historicalRecordObj = {
-                    date: new Date().toLocaleDateString(),
-                    metrics: {}
-                };
-
-                SYSTEM_LIMITS.forEach(limit => {
-                    historicalRecordObj.metrics[limit] = {
-                        high: state[limit].dailyHigh,
-                        low: state[limit].dailyLow,
-                        avg: state[limit].avgPrice
-                    };
-                });
-
-                currentHistory.unshift(historicalRecordObj);
-                if (currentHistory.length > 7) currentHistory.pop();
-
-                localStorage.setItem(this.HISTORY_KEY, JSON.stringify(currentHistory));
-            },
-
-            clearLogs() {
-                localStorage.removeItem(this.HISTORY_KEY);
-                UIController.renderHistoryView();
-            }
-        };
-
-        // MODULE 3: INTERACTIVE USER INTERFACE DESIGN LAYERING
-        const UIController = {
-            activeTab: 'dashboard',
-            activeChartLimit: 10000,
-            chartInstance: null,
-
-            switchTab(tabId) {
-                this.activeTab = tabId;
-                document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
-                document.querySelectorAll('.nav-tab').forEach(tab => {
-                    tab.classList.remove('bg-binance-card', 'text-white');
-                    tab.classList.add('text-gray-400');
-                });
-
-                document.getElementById(`view-${tabId}`).classList.remove('hidden');
-                const targetTabBtn = document.getElementById(`tab-${tabId}`);
-                targetTabBtn.classList.add('bg-binance-card', 'text-white');
-                targetTabBtn.classList.remove('text-gray-400');
-
-                if (tabId === 'charts') {
-                    this.renderChartControls();
-                    this.rebuildChartInstance();
-                } else if (tabId === 'arbitrage') {
-                    this.renderArbitrageView();
-                } else if (tabId === 'history') {
-                    this.renderHistoryView();
-                }
-            },
-
-            renderDashboardMatrix(state) {
-                const tbody = document.getElementById('matrix-table-body');
-                if (!tbody) return;
-                tbody.innerHTML = '';
-
-                let totalAvgAggregator = 0;
-                let boundaryBuy = parseFloat(document.getElementById('buy-threshold').value) || 134.50;
-                let boundarySell = parseFloat(document.getElementById('sell-threshold').value) || 136.20;
-
-                SYSTEM_LIMITS.forEach(limit => {
-                    const rowData = state[limit];
-                    if (!rowData.currentPrice) return;
-                    totalAvgAggregator += rowData.currentPrice;
-
-                    let trendIcon = '<i class="fa-solid fa-minus text-gray-500"></i>';
-                    if (rowData.trend === 'UP') trendIcon = '<i class="fa-solid fa-arrow-trend-up binance-green text-xs"></i>';
-                    if (rowData.trend === 'DOWN') trendIcon = '<i class="fa-solid fa-arrow-trend-down binance-red text-xs"></i>';
-
-                    let signalBadge = '<span class="text-xs bg-[#2b3139] text-gray-400 px-2 py-0.5 rounded-full font-medium">NEUTRAL</span>';
-                    if (rowData.currentPrice <= boundaryBuy) {
-                        signalBadge = '<span class="text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full font-bold animate-pulse">⚡ BUY ZONE</span>';
-                    } else if (rowData.currentPrice >= boundarySell) {
-                        signalBadge = '<span class="text-xs bg-rose-950 text-rose-400 border border-rose-800 px-2 py-0.5 rounded-full font-bold">⚠️ SELL ZONE</span>';
-                    }
-
-                    const tableRow = document.createElement('tr');
-                    tableRow.className = "hover:bg-[#1e2329]/50 transition-colors border-b border-binance";
-                    tableRow.innerHTML = `
-                        <td class="py-3 px-4 font-semibold text-gray-300">≥ ${limit.toLocaleString()}</td>
-                        <td class="py-3 px-4 text-right font-bold text-white">${rowData.currentPrice.toFixed(2)}</td>
-                        <td class="py-3 px-4 text-right binance-green">${rowData.dailyLow !== Infinity ? rowData.dailyLow.toFixed(2) : '--'}</td>
-                        <td class="py-3 px-4 text-right binance-red">${rowData.dailyHigh !== -Infinity ? rowData.dailyHigh.toFixed(2) : '--'}</td>
-                        <td class="py-3 px-4 text-right text-gray-300">${rowData.avgPrice.toFixed(2)}</td>
-                        <td class="py-3 px-4 text-center">${trendIcon}</td>
-                        <td class="py-3 px-4 text-center">${signalBadge}</td>
-                    `;
-                    tbody.appendChild(tableRow);
-                });
-
-                if (totalAvgAggregator > 0) {
-                    document.getElementById('stat-avg-price').innerText = `NPR ${(totalAvgAggregator / SYSTEM_LIMITS.length).toFixed(2)}`;
-                }
-            },
-
-            renderChartControls() {
-                const container = document.getElementById('chart-limit-selectors');
-                if (!container || container.children.length > 0) return;
-
-                SYSTEM_LIMITS.forEach(limit => {
-                    const button = document.createElement('button');
-                    button.id = `btn-chart-limit-${limit}`;
-                    button.className = `p-2.5 rounded text-left font-mono font-medium text-xs transition border ${this.activeChartLimit === limit ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/40' : 'bg-[#14161a] border-binance text-gray-400 hover:text-white'}`;
-                    button.innerText = `NPR ${limit.toLocaleString()}`;
-                    button.onclick = () => {
-                        document.querySelectorAll('[id^="btn-chart-limit-"]').forEach(b => {
-                            b.className = 'p-2.5 rounded text-left font-mono font-medium text-xs transition border bg-[#14161a] border-binance text-gray-400 hover:text-white';
-                        });
-                        button.className = 'p-2.5 rounded text-left font-mono font-medium text-xs transition border bg-yellow-500/10 text-yellow-500 border-yellow-500/40';
-                        this.activeChartLimit = limit;
-                        document.getElementById('chart-title-display').innerText = `Limit Structure: NPR ${limit.toLocaleString()}`;
-                        this.rebuildChartInstance();
-                    };
-                    container.appendChild(button);
-                });
-            },
-
-            rebuildChartInstance() {
-                const canvasContext = document.getElementById('livePriceChart');
-                if (!canvasContext) return;
-
-                const activeState = App.stateEngine[this.activeChartLimit];
-                const historicalBufferData = activeState.historyBuffer || [];
-
-                const labelTimestamps = historicalBufferData.map(pt => pt.time);
-                const datasetSpot = historicalBufferData.map(pt => pt.val);
-                const datasetHighs = historicalBufferData.map(() => activeState.dailyHigh);
-                const datasetLows = historicalBufferData.map(() => activeState.dailyLow);
-
-                if (this.chartInstance) {
-                    this.chartInstance.destroy();
-                }
-
-                this.chartInstance = new Chart(canvasContext.getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: labelTimestamps,
-                        datasets: [
-                            {
-                                label: 'Spot Price',
-                                data: datasetSpot,
-                                borderColor: '#fcd535',
-                                backgroundColor: 'rgba(252, 213, 53, 0.05)',
-                                borderWidth: 2,
-                                fill: true,
-                                tension: 0.2
-                            },
-                            {
-                                label: 'Daily Ceiling',
-                                data: datasetHighs,
-                                borderColor: '#f6465d',
-                                borderDash: [4, 4],
-                                borderWidth: 1.5,
-                                fill: false,
-                                pointRadius: 0
-                            },
-                            {
-                                label: 'Daily Floor',
-                                data: datasetLows,
-                                borderColor: '#0ecb81',
-                                borderDash: [4, 4],
-                                borderWidth: 1.5,
-                                fill: false,
-                                pointRadius: 0
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { labels: { color: '#eaecef', font: { size: 11 } } }
-                        },
-                        scales: {
-                            x: { grid: { color: '#2b3139' }, ticks: { color: '#b7bdc6', font: { size: 10 } } },
-                            y: { grid: { color: '#2b3139' }, ticks: { color: '#b7bdc6', font: { size: 10 } } }
-                        }
-                    }
-                });
-            },
-
-            renderArbitrageView() {
-                const tbody = document.getElementById('arbitrage-table-body');
-                if (!tbody) return;
-                tbody.innerHTML = '';
-
-                let optimalSpreadScore = -Infinity;
-                let premiumTargetLimitString = "--";
-
-                SYSTEM_LIMITS.forEach(limit => {
-                    const metrics = App.stateEngine[limit];
-                    if (!metrics.currentPrice) return;
-
-                    const spreadAbsolute = parseFloat((metrics.currentSellPrice - metrics.currentPrice).toFixed(2));
-                    const percentageYield = ((spreadAbsolute / metrics.currentPrice) * 100).toFixed(2);
-
-                    let scoreLabel = '<span class="text-xs text-gray-500">LOW GAIN</span>';
-                    if (percentageYield > 0.3) scoreLabel = '<span class="text-xs text-yellow-500 font-bold">OPTIMAL VARIANCE</span>';
-                    if (percentageYield > 0.6) scoreLabel = '<span class="text-xs text-emerald-400 font-bold animate-pulse">🔥 HIGH YIELD</span>';
-
-                    if (parseFloat(percentageYield) > optimalSpreadScore) {
-                        optimalSpreadScore = parseFloat(percentageYield);
-                        premiumTargetLimitString = `≥ ${limit.toLocaleString()} (${percentageYield}%)`;
-                    }
-
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-[#1e2329]/50 border-b border-binance";
-                    tr.innerHTML = `
-                        <td class="py-3.5 px-4 font-semibold text-gray-300">NPR ${limit.toLocaleString()}</td>
-                        <td class="py-3.5 px-4 text-right text-white">${metrics.currentPrice.toFixed(2)}</td>
-                        <td class="py-3.5 px-4 text-right text-gray-400">${metrics.currentSellPrice.toFixed(2)}</td>
-                        <td class="py-3.5 px-4 text-right binance-yellow font-bold">${spreadAbsolute.toFixed(2)}</td>
-                        <td class="py-3.5 px-4 text-right binance-green font-bold">${percentageYield}%</td>
-                        <td class="py-3.5 px-4 text-center">${scoreLabel}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-
-                document.getElementById('stat-best-limit').innerText = premiumTargetLimitString;
-            },
-
-            renderHistoryView() {
-                const container = document.getElementById('history-grid-container');
-                if (!container) return;
-                container.innerHTML = '';
-
-                const archivedLogs = StorageService.getMacroHistory();
-                if (archivedLogs.length === 0) {
-                    container.innerHTML = `
-                        <div class="col-span-full binance-card border border-binance p-8 text-center text-gray-500 text-sm">
-                            <i class="fa-solid fa-box-open text-3xl mb-2 block"></i> No execution logs available yet. Let the tracker cross midnight to store automated summaries.
-                        </div>`;
-                    return;
-                }
-
-                archivedLogs.forEach(log => {
-                    const profileCard = document.createElement('div');
-                    profileCard.className = "binance-card border border-binance rounded-xl p-4";
-                    
-                    let dataTableRows = '';
-                    Object.keys(log.metrics).slice(0, 5).forEach(limit => {
-                        const subMetric = log.metrics[limit];
-                        dataTableRows += `
-                            <tr class="text-xs border-b border-binance/50 font-mono">
-                                <td class="py-1.5 text-gray-400">Tier ${parseInt(limit).toLocaleString()}</td>
-                                <td class="py-1.5 text-right binance-green">${subMetric.low !== Infinity ? subMetric.low.toFixed(2) : '--'}</td>
-                                <td class="py-1.5 text-right binance-red">${subMetric.high !== -Infinity ? subMetric.high.toFixed(2) : '--'}</td>
-                                <td class="py-1.5 text-right text-white">${subMetric.avg ? subMetric.avg.toFixed(2) : '--'}</td>
-                            </tr>`;
-                    });
-
-                    profileCard.innerHTML = `
-                        <div class="flex justify-between items-center border-b border-binance pb-2 mb-3">
-                            <h4 class="font-bold text-sm binance-yellow"><i class="fa-solid fa-calendar-day mr-1.5"></i> Date: ${log.date}</h4>
-                        </div>
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr class="text-[10px] text-gray-500 uppercase tracking-wider">
-                                    <th>Limit Range</th>
-                                    <th class="text-right">Low</th>
-                                    <th class="text-right">High</th>
-                                    <th class="text-right">Avg Base</th>
-                                </tr>
-                            </thead>
-                            <tbody>${dataTableRows}</tbody>
-                        </table>
-                    `;
-                    container.appendChild(profileCard);
-                });
-            }
-        };
-
-        // MODULE 4: CENTRAL APPLICATION CONTROL LOOP
-        const App = {
-            stateEngine: null,
-            timerClock: null,
-            remainingRefreshTime: AUTO_REFRESH_INTERVAL / 1000,
-            activeDayTrackingString: new Date().toLocaleDateString(),
-
-            init() {
-                this.stateEngine = StorageService.getInitialState();
-                const savedDay = localStorage.getItem('SYSTEM_TRACKING_DAY');
-                if (savedDay) this.activeDayTrackingString = savedDay;
-                else localStorage.setItem('SYSTEM_TRACKING_DAY', this.activeDayTrackingString);
-
-                this.executePipelineSync();
-                this.engageTimerClock();
-                UIController.switchTab('dashboard');
-            },
-
-            engageTimerClock() {
-                if (this.timerClock) clearInterval(this.timerClock);
-                this.remainingRefreshTime = AUTO_REFRESH_INTERVAL / 1000;
-
-                this.timerClock = setInterval(() => {
-                    this.remainingRefreshTime--;
-                    const textLabel = document.getElementById('countdown-text');
-                    if (textLabel) textLabel.innerText = `Sync in ${this.remainingRefreshTime}s`;
-
-                    if (this.remainingRefreshTime <= 0) {
-                        this.executePipelineSync();
-                        this.remainingRefreshTime = AUTO_REFRESH_INTERVAL / 1000;
-                    }
-                }, 1000);
-            },
-
-            async executePipelineSync() {
-                const indicator = document.getElementById('refresh-indicator');
-                if (indicator) indicator.className = "w-2 h-2 rounded-full bg-yellow-500 animate-spin";
-
-                this.checkAndProcessMidnightReset();
-
-                const runtimePayload = await ApiService.fetchP2PData();
-                if (runtimePayload.success && runtimePayload.data) {
-                    this.processIncomingPayload(runtimePayload.data);
-                }
-
-                if (indicator) indicator.className = "w-2 h-2 rounded-full bg-green-500";
-            },
-
-            processIncomingPayload(incomingData) {
-                SYSTEM_LIMITS.forEach(limit => {
-                    const pointUpdate = incomingData[limit];
-                    const stateRef = this.stateEngine[limit];
-
-                    if (!pointUpdate) return;
-
-                    if (stateRef.currentPrice) {
-                        if (pointUpdate.buyPrice > stateRef.currentPrice) stateRef.trend = 'UP';
-                        else if (pointUpdate.buyPrice < stateRef.currentPrice) stateRef.trend = 'DOWN';
-                        else stateRef.trend = 'STABLE';
-                    }
-
-                    stateRef.currentPrice = pointUpdate.buyPrice;
-                    stateRef.currentSellPrice = pointUpdate.sellPrice;
-                    stateRef.lastUpdated = pointUpdate.timestamp;
-
-                    if (pointUpdate.buyPrice > stateRef.dailyHigh) stateRef.dailyHigh = pointUpdate.buyPrice;
-                    if (pointUpdate.buyPrice < stateRef.dailyLow) stateRef.dailyLow = pointUpdate.buyPrice;
-
-                    stateRef.runningSum += pointUpdate.buyPrice;
-                    stateRef.datapointsCount += 1;
-                    stateRef.avgPrice = parseFloat((stateRef.runningSum / stateRef.datapointsCount).toFixed(2));
-
-                    if (!stateRef.historyBuffer) stateRef.historyBuffer = [];
-                    stateRef.historyBuffer.push({ time: pointUpdate.timestamp.split(' ')[0], val: pointUpdate.buyPrice });
-                    if (stateRef.historyBuffer.length > 15) stateRef.historyBuffer.shift();
-                });
-
-                StorageService.saveState(this.stateEngine);
-
-                if (UIController.activeTab === 'dashboard') UIController.renderDashboardMatrix(this.stateEngine);
-                if (UIController.activeTab === 'charts') UIController.rebuildChartInstance();
-                if (UIController.activeTab === 'arbitrage') UIController.renderArbitrageView();
-            },
-
-            checkAndProcessMidnightReset() {
-                const today = new Date().toLocaleDateString();
-                if (this.activeDayTrackingString !== today) {
-                    StorageService.archiveDailyMetrics(this.stateEngine);
-
-                    SYSTEM_LIMITS.forEach(limit => {
-                        this.stateEngine[limit].dailyHigh = -Infinity;
-                        this.stateEngine[limit].dailyLow = Infinity;
-                        this.stateEngine[limit].runningSum = 0;
-                        this.stateEngine[limit].datapointsCount = 0;
-                        this.stateEngine[limit].avgPrice = 0;
-                        this.stateEngine[limit].trend = 'STABLE';
-                        this.stateEngine[limit].historyBuffer = [];
-                    });
-
-                    this.activeDayTrackingString = today;
-                    localStorage.setItem('SYSTEM_TRACKING_DAY', this.activeDayTrackingString);
-                    StorageService.saveState(this.stateEngine);
-                }
-            },
-
-            updateThresholds() {
-                if (UIController.activeTab === 'dashboard') {
-                    UIController.renderDashboardMatrix(this.stateEngine);
-                }
-            },
-
-            triggerManualFetch() {
-                this.executePipelineSync();
-                this.engageTimerClock();
-            }
-        };
-
-        window.addEventListener('DOMContentLoaded', () => App.init());
-    </script>
 </body>
 </html>
