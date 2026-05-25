@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binance P2P Clone - USDT/NPR</title>
+    <title>Binance P2P Clone with Left Filter</title>
     <style>
-        /* Binance Standard Dark Mode Colors */
         :root {
             --bg-color: #12161a;
             --card-bg: #1e2329;
@@ -15,6 +14,7 @@
             --green: #0ecb81;
             --red: #f6465d;
             --border-color: #2b3139;
+            --input-bg: #2b3139;
         }
 
         body {
@@ -26,28 +26,96 @@
         }
 
         .container {
-            max-width: 1100px;
-            margin: 40px auto;
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            max-width: 1250px;
+            margin: 30px auto;
         }
 
         h2 {
-            margin-top: 0;
+            margin-bottom: 24px;
             font-size: 24px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
         .binance-logo {
             color: var(--binance-yellow);
-            font-weight: bold;
         }
 
-        /* Buy / Sell Tabs */
+        /* Two Column Layout */
+        .p2p-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* Left Side Filter Panel */
+        .sidebar {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .filter-group {
+            margin-bottom: 18px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .filter-group input {
+            width: 100%;
+            box-sizing: border-box;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .filter-group input:focus {
+            border-color: var(--binance-yellow);
+        }
+
+        .filter-btn {
+            width: 100%;
+            background-color: var(--binance-yellow);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+
+        .filter-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Right Side Content Panel */
+        .main-content {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Buy/Sell Tabs */
         .tabs {
             display: flex;
             gap: 15px;
@@ -63,51 +131,15 @@
             font-weight: 600;
             padding: 10px 5px;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .tab-btn.active-buy {
-            color: var(--green);
-            border-bottom: 3px solid var(--green);
-        }
+        .tab-btn.active-buy { color: var(--green); border-bottom: 3px solid var(--green); }
+        .tab-btn.active-sell { color: var(--red); border-bottom: 3px solid var(--red); }
 
-        .tab-btn.active-sell {
-            color: var(--red);
-            border-bottom: 3px solid var(--red);
-        }
-
-        /* Filter Row Indicator */
-        .filters {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .filter-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .filter-item label {
-            color: var(--text-muted);
-        }
-
-        .filter-item select {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
-            border-radius: 6px;
-            min-width: 120px;
-        }
-
-        /* P2P Grid/Table */
+        /* Table CSS */
         table {
             width: 100%;
             border-collapse: collapse;
-            text-align: left;
         }
 
         th {
@@ -116,140 +148,126 @@
             padding: 12px 16px;
             border-bottom: 1px solid var(--border-color);
             font-size: 14px;
+            text-align: left;
         }
 
         td {
-            padding: 18px 16px;
+            padding: 16px;
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
         }
 
-        /* Merchant Details */
-        .merchant-info {
-            display: flex;
-            flex-direction: column;
-        }
+        .merchant-info { display: flex; flex-direction: column; }
+        .m-name { font-weight: 600; color: #fff; }
+        .m-orders { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-        .m-name {
-            font-weight: 600;
-            color: #fff;
-            font-size: 15px;
-        }
+        .price-container { font-size: 20px; font-weight: bold; }
+        .fiat-unit { font-size: 13px; color: var(--text-muted); margin-left: 4px; }
 
-        .m-orders {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
+        .limit-container div { font-size: 13px; margin-bottom: 2px; }
 
-        /* Price Formatting */
-        .price-container {
-            font-size: 22px;
-            font-weight: bold;
-        }
-
-        .fiat-unit {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-left: 4px;
-        }
-
-        /* Limits styling */
-        .limit-container div {
-            font-size: 13px;
-            margin-bottom: 2px;
-        }
-
-        /* Payment Badge Colors */
         .pm-badge {
             display: inline-block;
-            padding: 4px 8px;
+            padding: 3px 6px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
-            margin-right: 6px;
+            margin-right: 4px;
         }
-
         .esewa { background-color: rgba(96, 187, 70, 0.15); color: #60bb46; }
         .khalti { background-color: rgba(92, 38, 142, 0.15); color: #8e44ad; }
         .bank { background-color: rgba(52, 152, 219, 0.15); color: #3498db; }
 
-        /* Order Button styling */
         .action-btn {
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 14px;
-            transition: opacity 0.2s;
+            font-size: 13px;
         }
-
-        .action-btn:hover {
-            opacity: 0.9;
-        }
-
         .btn-buy-grid { background-color: var(--green); color: white; }
         .btn-sell-grid { background-color: var(--red); color: white; }
+        
+        .no-data {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2><span class="binance-logo">Binance</span> P2P Market Clone</h2>
+    <h2><span class="binance-logo">Binance</span> P2P Trades (NPR)</h2>
     
-    <div class="tabs">
-        <button class="tab-btn active-buy" id="buyTab" onclick="switchTab('BUY')">Buy</button>
-        <button class="tab-btn" id="sellTab" onclick="switchTab('SELL')">Sell</button>
-    </div>
+    <div class="p2p-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-title">Filter Selection</div>
+            
+            <div class="filter-group">
+                <label for="amountInput">Amount (NPR)</label>
+                <input type="number" id="amountInput" placeholder="Enter amount (e.g. 25000)">
+            </div>
 
-    <div class="filters">
-        <div class="filter-item">
-            <label>Asset</label>
-            <select disabled><option>USDT</option></select>
-        </div>
-        <div class="filter-item">
-            <label>Fiat</label>
-            <select disabled><option>NPR</option></select>
-        </div>
-    </div>
+            <button class="filter-btn" onclick="applyFilter()">Search Amount</button>
+        </aside>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Advertiser</th>
-                <th>Price</th>
-                <th>Available / Limit</th>
-                <th>Payment</th>
-                <th>Trade</th>
-            </tr>
-        </thead>
-        <tbody id="p2p-data-rows">
-            </tbody>
-    </table>
+        <main class="main-content">
+            <div class="tabs">
+                <button class="tab-btn active-buy" id="buyTab" onclick="switchTab('BUY')">Buy</button>
+                <button class="tab-btn" id="sellTab" onclick="switchTab('SELL')">Sell</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Advertiser</th>
+                        <th>Price</th>
+                        <th>Available / Limit</th>
+                        <th>Payment</th>
+                        <th>Trade</th>
+                    </tr>
+                </thead>
+                <tbody id="p2p-data-rows">
+                    </tbody>
+            </table>
+        </main>
+    </div>
 </div>
 
 <script>
-    // 1. Live Environment मा देखाउन Demo Data Array (NPR standard components)
-    const sampleData = {
+    // Raw Numbers मा राखिएको Mock Data (ताकि filter गर्न मिलोस्)
+    const masterData = {
         BUY: [
-            { name: "Crypto_Gorkha ✅", orders: "1,240 orders | 99.10%", price: "136.45", available: "850.00 USDT", min: "रु15,000", max: "रु115,000", payments: ["esewa", "bank"] },
-            { name: "Kathmandu_Traders", orders: "420 orders | 96.50%", price: "136.60", available: "1,500.00 USDT", min: "रु20,000", max: "रु200,000", payments: ["esewa", "khalti"] },
-            { name: "Apex_Crypto_NP ✅", orders: "890 orders | 100.00%", price: "136.85", available: "320.15 USDT", min: "रु5,000", max: "रु43,000", payments: ["bank"] }
+            { name: "Crypto_Gorkha ✅", orders: "1,240 orders | 99.10%", price: "136.45", available: "850.00 USDT", min: 15000, max: 115000, payments: ["esewa", "bank"] },
+            { name: "Kathmandu_Traders", orders: "420 orders | 96.50%", price: "136.60", available: "1,500.00 USDT", min: 20000, max: 200000, payments: ["esewa", "khalti"] },
+            { name: "Apex_Crypto_NP ✅", orders: "890 orders | 100.00%", price: "136.85", available: "320.15 USDT", min: 5000, max: 43000, payments: ["bank"] },
+            { name: "Himalayan_P2P", orders: "55 orders | 92.00%", price: "137.10", available: "100.00 USDT", min: 1000, max: 13000, payments: ["esewa"] }
         ],
         SELL: [
-            { name: "NP_Whale_Trader ✅", orders: "2,100 orders | 98.40%", price: "135.20", available: "2,300.00 USDT", min: "रु50,000", max: "रु300,000", payments: ["esewa", "bank"] },
-            { name: "Pokhara_Exchange", orders: "310 orders | 95.00%", price: "135.05", available: "400.00 USDT", min: "रु10,000", max: "रु54,000", payments: ["khalti"] },
-            { name: "Bhairahawa_Crypto", orders: "650 orders | 97.20%", price: "134.90", available: "1,050.00 USDT", min: "रु15,000", max: "रु140,000", payments: ["esewa"] }
+            { name: "NP_Whale_Trader ✅", orders: "2,100 orders | 98.40%", price: "135.20", available: "2,300.00 USDT", min: 50000, max: 300000, payments: ["esewa", "bank"] },
+            { name: "Pokhara_Exchange", orders: "310 orders | 95.00%", price: "135.05", available: "400.00 USDT", min: 10000, max: 54000, payments: ["khalti"] },
+            { name: "Bhairahawa_Crypto", orders: "650 orders | 97.20%", price: "134.90", available: "1,050.00 USDT", min: 15000, max: 14000, payments: ["esewa"] }
         ]
     };
 
-    // 2. UI मा Table Data Render गर्ने Function
-    function renderData(mode) {
+    let currentMode = 'BUY'; // Global State track गर्न
+
+    function renderData(mode, filterAmount = null) {
         const tbody = document.getElementById('p2p-data-rows');
         tbody.innerHTML = '';
 
-        const dataRows = sampleData[mode];
+        // यदि प्रयोगकर्ताले रकम हालेको छ भने filter गर्ने, नत्र सबै देखाउने
+        let dataRows = masterData[mode];
+        if (filterAmount !== null && filterAmount > 0) {
+            dataRows = dataRows.filter(row => filterAmount >= row.min && filterAmount <= row.max);
+        }
+
+        if(dataRows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="no-data">No ads match your amount range filter.</td></tr>`;
+            return;
+        }
 
         dataRows.forEach(row => {
             let paymentBadges = row.payments.map(p => `<span class="pm-badge ${p}">${p.toUpperCase()}</span>`).join('');
@@ -272,7 +290,7 @@
                 <td>
                     <div class="limit-container">
                         <div><span style="color:var(--text-muted)">Available:</span> ${row.available}</div>
-                        <div><span style="color:var(--text-muted)">Limit:</span> ${row.min} - ${row.max}</div>
+                        <div><span style="color:var(--text-muted)">Limit:</span> रु ${row.min.toLocaleString()} - रु ${row.max.toLocaleString()}</div>
                     </div>
                 </td>
                 <td>${paymentBadges}</td>
@@ -284,8 +302,9 @@
         });
     }
 
-    // 3. Buy र Sell Tab Switch गर्ने Logic
+    // Tab Switch गर्दा Amount filter लाई पनि ध्यान दिने
     function switchTab(mode) {
+        currentMode = mode;
         const buyTab = document.getElementById('buyTab');
         const sellTab = document.getElementById('sellTab');
 
@@ -296,39 +315,16 @@
             buyTab.className = 'tab-btn';
             sellTab.className = 'tab-btn active-sell';
         }
-        renderData(mode);
+        applyFilter(); 
     }
 
-    // 4. [DEVELOPMENT NOTE]: रियल API कसरि कनेक्ट गर्ने?
-    // यदि तपाईं आफ्नै Node.js वा Python ब्याकइन्ड (Proxy) बनाउनुहुन्छ भने, 
-    // यो function प्रयोग गरेर लाइव Binance डेटा ल्याउन सक्नुहुन्छ:
-    async function fetchLiveBinanceP2P(tradeType) {
-        const BACKEND_PROXY_URL = "http://localhost:5000/api/p2p"; // तपाईंको लोकल वा लाइभ ब्याकइन्ड proxy
-
-        try {
-            const response = await fetch(BACKEND_PROXY_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    page: 1,
-                    rows: 10,
-                    asset: "USDT",
-                    fiat: "NPR",
-                    tradeType: tradeType, // 'BUY' वा 'SELL'
-                    payTypes: [],
-                    publisherType: null
-                })
-            });
-            const resData = await response.json();
-            console.log("Live P2P Ads Array:", resData.data);
-            
-            // डेटा प्राप्त भइसकेपछि यो Array लाई loop गरेर UI मा `renderData` जस्तै गरी append गर्न सकिन्छ।
-        } catch (error) {
-            console.error("CORS वा नेटवर्क समस्या:", error);
-        }
+    // Filter Button Click गर्दा चल्ने function
+    function applyFilter() {
+        const amountValue = parseFloat(document.getElementById('amountInput').value);
+        renderData(currentMode, isNaN(amountValue) ? null : amountValue);
     }
 
-    // Initial Load default 'BUY'
+    // Initial load
     renderData('BUY');
 </script>
 
