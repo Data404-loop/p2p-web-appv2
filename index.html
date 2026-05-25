@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binance P2P: Buy/Sell & Market Analysis (USDT/NPR)</title>
-    <!-- Chart.js CDN -->
+    <title>Binance P2P: Dual Analysis Dashboard (USDT/NPR)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -139,20 +138,8 @@
         .direction-tab.active-analysis { color: var(--binance-yellow); }
         .direction-tab.active-analysis::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background-color: var(--binance-yellow); }
 
-        .asset-pills {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            padding-bottom: 6px;
-        }
-
-        .asset-pill {
-            font-size: 12px;
-            font-weight: 600;
-            padding: 2px 8px;
-            color: var(--binance-text-secondary);
-        }
-
+        .asset-pills { display: flex; gap: 6px; align-items: center; padding-bottom: 6px; }
+        .asset-pill { font-size: 12px; font-weight: 600; padding: 2px 8px; color: var(--binance-text-secondary); }
         .asset-pill.active { color: var(--binance-yellow); }
 
         .p2p-filter-strip {
@@ -164,23 +151,8 @@
             align-items: center;
         }
 
-        .filter-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .filter-label {
-            font-size: 11px;
-            color: var(--binance-text-secondary);
-            white-space: nowrap;
-        }
-
-        .filter-input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
+        .filter-item { display: flex; align-items: center; gap: 8px; }
+        .filter-label { font-size: 11px; color: var(--binance-text-secondary); white-space: nowrap; }
 
         .filter-select {
             background-color: var(--binance-gray-dark);
@@ -194,52 +166,26 @@
             height: 32px;
         }
 
-        .fiat-badge {
-            position: absolute;
-            right: 10px;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--binance-text-secondary);
-        }
-
-        .engine-utilities {
-            display: flex;
-            gap: 8px;
-            margin-left: auto;
-        }
-
+        .fiat-badge { position: absolute; right: 10px; font-size: 11px; font-weight: 600; color: var(--binance-text-secondary); }
+        .engine-utilities { display: flex; gap: 8px; margin-left: auto; }
+        
         .utility-btn {
-            background-color: var(--binance-bg-card);
-            color: var(--binance-text-primary);
-            border: 1px solid var(--binance-border);
-            border-radius: 4px;
-            padding: 0 12px;
-            font-size: 12px;
-            cursor: pointer;
-            height: 32px;
-            display: inline-flex;
-            align-items: center;
+            background-color: var(--binance-bg-card); color: var(--binance-text-primary);
+            border: 1px solid var(--binance-border); border-radius: 4px; padding: 0 12px;
+            font-size: 12px; cursor: pointer; height: 32px; display: inline-flex; align-items: center;
         }
+        .utility-btn.primary-action { background-color: var(--binance-yellow); color: var(--binance-black); font-weight: 600; border: none; }
 
-        .utility-btn.primary-action {
-            background-color: var(--binance-yellow);
-            color: var(--binance-black);
-            font-weight: 600;
-            border: none;
-        }
-
-        /* Analysis Dashboard High Density Structural Engine Layout */
+        /* Highly Optimized Dual Analysis Grid System Layout */
         .analysis-dashboard-layout {
             display: none;
-            grid-template-columns: 320px 1fr;
+            grid-template-columns: 350px 1fr;
             gap: 12px;
             margin-top: 12px;
         }
 
-        @media (max-width: 850px) {
-            .analysis-dashboard-layout {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 900px) {
+            .analysis-dashboard-layout { grid-template-columns: 1fr; }
         }
 
         .amount-matrix-panel {
@@ -247,7 +193,7 @@
             border: 1px solid var(--binance-border);
             border-radius: 6px;
             padding: 10px;
-            max-height: 480px;
+            max-height: 520px;
             overflow-y: auto;
         }
 
@@ -255,9 +201,11 @@
             font-size: 12px;
             font-weight: 600;
             color: var(--binance-text-secondary);
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
+            border-bottom: 1px solid var(--binance-border);
+            padding-bottom: 6px;
         }
 
         .amount-grid-system {
@@ -270,34 +218,26 @@
             background-color: var(--binance-bg-card);
             border: 1px solid var(--binance-border);
             border-radius: 4px;
-            padding: 6px 8px;
+            padding: 8px;
             cursor: pointer;
             user-select: none;
             transition: all 0.1s ease;
         }
 
-        .amount-grid-card:hover {
-            border-color: var(--binance-text-secondary);
-        }
+        .amount-grid-card:hover { border-color: var(--binance-text-secondary); }
+        .amount-grid-card.selected-active { border-color: var(--binance-yellow); background-color: var(--binance-bg-hover); }
 
-        .amount-grid-card.selected-active {
-            border-color: var(--binance-yellow);
-            background-color: var(--binance-bg-hover);
-        }
-
-        .card-vol-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--binance-text-primary);
-        }
-
+        .card-vol-title { font-size: 12px; font-weight: 700; color: var(--binance-text-primary); margin-bottom: 4px; }
+        
         .card-price-stream {
-            font-size: 11px;
-            margin-top: 2px;
-            color: var(--binance-green);
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 2px;
+            font-size: 11px;
         }
+        .stream-row { display: flex; justify-content: space-between; width: 100%; }
+        .stream-row.buy-text { color: var(--binance-green); }
+        .stream-row.sell-text { color: var(--binance-red); }
 
         .analysis-graphic-panel {
             background-color: var(--binance-gray-dark);
@@ -313,42 +253,21 @@
             font-size: 13px;
             font-weight: 600;
             color: var(--binance-yellow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .analysis-chart-container {
-            position: relative;
-            height: 360px;
-            width: 100%;
-        }
+        .legend-indicator-box { display: flex; gap: 12px; font-size: 11px; }
+        .indicator-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
 
-        /* Orderbook Table Structural Elements */
-        .p2p-orderbook-container {
-            background-color: var(--binance-gray-dark);
-            border: 1px solid var(--binance-border);
-            border-radius: 6px;
-            overflow: hidden;
-        }
+        .analysis-chart-container { position: relative; height: 400px; width: 100%; }
 
-        .p2p-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        .p2p-table th {
-            background-color: var(--binance-bg-card);
-            color: var(--binance-text-secondary);
-            font-size: 11px;
-            font-weight: 500;
-            padding: 10px 14px;
-            border-bottom: 1px solid var(--binance-border);
-        }
-
-        .p2p-table td {
-            padding: 10px 14px;
-            border-bottom: 1px solid var(--binance-border);
-            font-size: 13px;
-        }
+        /* Main P2P Orderbook Tables */
+        .p2p-orderbook-container { background-color: var(--binance-gray-dark); border: 1px solid var(--binance-border); border-radius: 6px; overflow: hidden; }
+        .p2p-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .p2p-table th { background-color: var(--binance-bg-card); color: var(--binance-text-secondary); font-size: 11px; font-weight: 500; padding: 10px 14px; border-bottom: 1px solid var(--binance-border); }
+        .p2p-table td { padding: 10px 14px; border-bottom: 1px solid var(--binance-border); font-size: 13px; }
 
         .merchant-name { color: var(--binance-yellow); font-weight: 600; text-decoration: none; }
         .merchant-stats { font-size: 11px; color: var(--binance-text-secondary); }
@@ -363,9 +282,7 @@
         .payment-pill.khalti { border-left-color: #5c2d91; background-color: rgba(92,45,145,0.05); color: #b185e7; }
         .payment-pill.bank { border-left-color: #0066b2; background-color: rgba(0,102,178,0.05); color: #66b2ff; }
 
-        .trade-action-btn {
-            border: none; border-radius: 4px; color: white; font-size: 12px; font-weight: 600; padding: 6px 16px; min-width: 90px; height: 28px;
-        }
+        .trade-action-btn { border: none; border-radius: 4px; color: white; font-size: 12px; font-weight: 600; padding: 6px 16px; min-width: 90px; height: 28px; }
         .trade-action-btn.buy-bg { background-color: var(--binance-green); }
         .trade-action-btn.sell-bg { background-color: var(--binance-red); }
 
@@ -422,20 +339,17 @@
             </div>
         </section>
 
-        <!-- Standard Filter Strip Controls Row -->
         <section id="p2pFilterStrip" class="p2p-filter-strip">
             <div class="filter-item">
                 <span class="filter-label">Amount</span>
                 <div class="filter-input-wrapper">
-                    <select id="amountFilter" class="filter-select" style="padding-right: 36px;">
+                    <select id="amountFilter" class="filter-select">
                         <option value="100">100</option><option value="200">200</option><option value="300">300</option>
-                        <option value="400">400</option><option value="500">500</option><option value="1000" selected>1,000</option>
-                        <option value="1500">1,500</option><option value="2000">2,000</option><option value="3000">3,000</option>
-                        <option value="4000">4,000</option><option value="5000">5,000</option><option value="10000">10,000</option>
-                        <option value="15000">15,000</option><option value="20000">20,000</option><option value="30000">30,000</option>
-                        <option value="50000">50,000</option>
+                        <option value="500">500</option><option value="1000" selected>1,000</option>
+                        <option value="2000">2,000</option><option value="5000">5,000</option><option value="10000">10,000</option>
+                        <option value="20000">20,000</option><option value="50000">50,000</option>
                     </select>
-                    <span class="fiat-badge">NPR</span>
+                    <span class="fiat-badge" style="right:25px;">NPR</span>
                 </div>
             </div>
 
@@ -463,7 +377,6 @@
 
         <div id="alertBanner" class="alert-banner"></div>
 
-        <!-- Standard Real-Time Order Stream Viewport Panels -->
         <div id="standardViewContainer">
             <section class="analytics-drawer">
                 <div class="drawer-header" onclick="toggleAnalyticsDrawer()">
@@ -473,11 +386,11 @@
                 <div id="drawerBody" class="analytics-content">
                     <div class="stats-summary-grid">
                         <div class="stat-mini-card">
-                            <div class="mini-card-label" id="lowCardLabel">Lowest Buy</div>
+                            <div class="mini-card-label" id="lowCardLabel">Lowest Rate</div>
                             <div class="mini-card-value up" id="analyticsLow">—</div>
                         </div>
                         <div class="stat-mini-card">
-                            <div class="mini-card-label" id="highCardLabel">Highest Buy</div>
+                            <div class="mini-card-label" id="highCardLabel">Highest Rate</div>
                             <div class="mini-card-value down" id="analyticsHigh">—</div>
                         </div>
                         <div class="stat-mini-card">
@@ -511,20 +424,24 @@
             </section>
         </div>
 
-        <!-- Advanced Analysis Dashboard Tab Panel Viewport Layout -->
         <div id="analysisDashboardView" class="analysis-dashboard-layout">
             <div class="amount-matrix-panel">
                 <div class="matrix-header">
-                    <span>Amount Grid Filter</span>
-                    <span id="matrixCounterLabel" style="color:var(--binance-yellow);">Updating...</span>
+                    <span>Amount Finder Grid</span>
+                    <span id="matrixCounterLabel" style="color:var(--binance-yellow);">Syncing...</span>
                 </div>
                 <div class="amount-grid-system" id="analysisGridContainer">
-                    <!-- Matrix Card Items injected programmatically -->
-                </div>
+                    </div>
             </div>
             
             <div class="analysis-graphic-panel">
-                <div class="graphic-panel-title" id="analysisChartHeadline">Historical Analytics Trend Stream (Amount: 1,000 NPR)</div>
+                <div class="graphic-panel-title">
+                    <span id="analysisChartHeadline">Historical Analytics (Amount: 1,000 NPR)</span>
+                    <div class="legend-indicator-box">
+                        <span><span class="indicator-dot" style="background:#0ecb81;"></span>Buy Side</span>
+                        <span><span class="indicator-dot" style="background:#f6465d;"></span>Sell Side</span>
+                    </div>
+                </div>
                 <div class="analysis-chart-container">
                     <canvas id="analysisMultiTrendChart"></canvas>
                 </div>
@@ -534,7 +451,6 @@
     </div>
 
     <script>
-        // Runtime Global Application States
         let currentTradeType = 'BUY'; 
         let globalChartInstance = null;
         let globalAnalysisChartInstance = null;
@@ -543,12 +459,10 @@
         let enginePollingIntervalId = null;
         let activeProcessMutexLock = false;
         
-        // Multi-Amount Deep Data Pipeline Scan Arrays
-        const trackingAmountsArray = ["100", "200", "300", "400", "500", "1000", "1500", "2000", "3000", "4000", "5000", "10000", "15000", "20000", "30000", "50000"];
+        const trackingAmountsArray = ["100", "200", "300", "500", "1000", "2000", "5000", "10000", "20000", "50000"];
         let roundRobinTrackingIndex = 0;
         let selectedAnalysisAmount = "1000";
 
-        // Query Component Selectors
         const elAmountFilter = document.getElementById('amountFilter');
         const elProxySystem = document.getElementById('proxySystem');
         const elAutoRefreshToggle = document.getElementById('autoRefreshToggle');
@@ -577,21 +491,37 @@
             elAmountFilter.addEventListener('change', () => { sessionHistoricalBuffer = []; executeDataSyncPipeline(); });
             elProxySystem.addEventListener('change', executeDataSyncPipeline);
             elAutoRefreshToggle.addEventListener('change', configureEngineIntervalTracking);
-            elManualRefreshBtn.addEventListener('click', executeDataSyncPipeline);
+            elManualRefreshBtn.addEventListener('click', () => {
+                if(currentTradeType === 'ANALYSIS') syncAnalysisDataMatrixGrid(); else executeDataSyncPipeline();
+            });
         }
 
         function initializeTrendCharts() {
             const contextSingle = document.getElementById('binanceLiveTrendChart').getContext('2d');
             globalChartInstance = new Chart(contextSingle, {
-                type: 'line', data: { labels: [], datasets: [{ label: 'Low', borderColor: '#0ecb81', data: [], tension: 0.1, pointRadius: 0 }] },
+                type: 'line', data: { labels: [], datasets: [{ label: 'Price', borderColor: '#F0B90B', data: [], tension: 0.1, pointRadius: 0 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ticks: { color: '#848e9c', font: { size: 9 } } } } }
             });
 
             const contextMulti = document.getElementById('analysisMultiTrendChart').getContext('2d');
             globalAnalysisChartInstance = new Chart(contextMulti, {
                 type: 'line',
-                data: { labels: [], datasets: [{ label: 'Lowest Price', borderColor: '#F0B90B', backgroundColor: 'rgba(240,185,11,0.05)', data: [], fill: true, tension: 0.1, borderPen: 2 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#848e9c', font: { size: 9 } } }, y: { ticks: { color: '#848e9c', font: { size: 9 } } } } }
+                data: { 
+                    labels: [], 
+                    datasets: [
+                        { label: 'Buy Lowest Price', borderColor: '#0ecb81', backgroundColor: 'rgba(14,203,129,0.02)', data: [], tension: 0.1, borderWidth: 2, pointRadius: 1 },
+                        { label: 'Sell Highest Price', borderColor: '#f6465d', backgroundColor: 'rgba(246,70,93,0.02)', data: [], tension: 0.1, borderWidth: 2, pointRadius: 1 }
+                    ] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        x: { ticks: { color: '#848e9c', font: { size: 9 } } }, 
+                        y: { ticks: { color: '#848e9c', font: { size: 9 } } } 
+                    } 
+                }
             });
         }
 
@@ -604,7 +534,10 @@
                 card.onclick = () => selectActiveAnalysisGridCard(amount);
                 card.innerHTML = `
                     <div class="card-vol-title">${parseInt(amount).toLocaleString()} NPR</div>
-                    <div class="card-price-stream" id="gridPrice_${amount}">Loading...</div>
+                    <div class="card-price-stream">
+                        <div class="stream-row buy-text"><span>Buy:</span><span id="gridBuy_${amount}">—</span></div>
+                        <div class="stream-row sell-text"><span>Sell:</span><span id="gridSell_${amount}">—</span></div>
+                    </div>
                 `;
                 elGridContainer.appendChild(card);
             });
@@ -638,7 +571,7 @@
             document.querySelectorAll('.amount-grid-card').forEach(c => c.classList.remove('selected-active'));
             document.getElementById(`gridCard_${amount}`).classList.add('selected-active');
             selectedAnalysisAmount = amount;
-            elChartHeadline.innerText = `Historical Analytics Trend Stream (Amount: ${parseInt(amount).toLocaleString()} NPR)`;
+            elChartHeadline.innerText = `Historical Analytics (Amount: ${parseInt(amount).toLocaleString()} NPR)`;
             updateAnalysisMetricChartDisplay();
         }
 
@@ -646,115 +579,132 @@
             if (enginePollingIntervalId) clearInterval(enginePollingIntervalId);
             if (elAutoRefreshToggle.checked) {
                 enginePollingIntervalId = setInterval(() => {
-                    if (currentTradeType === 'ANALYSIS') {
-                        syncAnalysisDataMatrixGrid();
-                    } else {
-                        executeDataSyncPipeline();
-                    }
-                }, 4000); // High performance background polling
+                    if (currentTradeType === 'ANALYSIS') syncAnalysisDataMatrixGrid(); else executeDataSyncPipeline();
+                }, 3000); // Super fast 3s polling for active changes
             }
         }
 
-        // Parallel Data Sync Framework Pipeline
-        async function fetchBinanceDataService(amountVal) {
+        async function fetchBinanceDataService(amountVal, side) {
             const operationalProxyKey = elProxySystem.value;
             const prefix = operationalProxyKey === 'corsproxy' ? 'https://corsproxy.io/?url=' : 'https://api.allorigins.win/raw?url=';
             const api = 'https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search';
             
             const payload = {
                 "asset": "USDT", "fiat": "NPR", "merchantCheck": false, "page": 1,
-                "payTypes": [], "publisherType": null, "rows": 10,
-                "tradeType": currentTradeType === 'ANALYSIS' ? 'BUY' : currentTradeType, 
-                "transAmount": amountVal
+                "payTypes": [], "publisherType": null, "rows": 5,
+                "tradeType": side, "transAmount": amountVal
             };
 
             const response = await fetch(prefix + encodeURIComponent(api), {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
             });
-            if (!response.ok) throw new Error("Fetch Error");
+            if (!response.ok) throw new Error("Network Fault");
             return await response.json();
         }
 
         async function executeDataSyncPipeline() {
             if (activeProcessMutexLock) return;
             activeProcessMutexLock = true;
-            
             try {
                 const targetAmt = elAmountFilter.value;
-                const result = await fetchBinanceDataService(targetAmt);
+                const result = await fetchBinanceDataService(targetAmt, currentTradeType);
                 if (result.success && result.data.length > 0) {
                     elAlertBanner.style.display = 'none';
                     processIncomingMarketAdvertisements(result.data);
                 }
             } catch (err) {
                 elAlertBanner.style.display = 'block';
-                elAlertBanner.innerText = "Network transmission timeout. Syncing background framework.";
-            } finally {
-                activeProcessMutexLock = false;
-            }
+                elAlertBanner.innerText = "Proxy transmission lag detected. Auto re-routing loop.";
+            } finally { activeProcessMutexLock = false; }
         }
 
-        // Sequential Multi-Amount Crawler Engine
+        // Parallel Dynamic Crawler Engine (Crawls both Buy & Sell Side instantly)
         async function syncAnalysisDataMatrixGrid() {
             if (activeProcessMutexLock) return;
             activeProcessMutexLock = true;
             
             elStatusDot.className = 'pulse-dot scanning';
-            elStatusMessage.innerText = 'Matrix Scanning...';
+            elStatusMessage.innerText = 'Dual Scanning...';
+
+            const targetAmount = trackingAmountsArray[roundRobinTrackingIndex];
+            elMatrixCounterLabel.innerText = `Scanning: ${parseInt(targetAmount).toLocaleString()} NPR...`;
 
             try {
-                const targetAmount = trackingAmountsArray[roundRobinTrackingIndex];
-                elMatrixCounterLabel.innerText = `Scanning: ${parseInt(targetAmount).toLocaleString()}...`;
+                // Simultaneous async requests for optimal speed
+                const [resBuy, resSell] = await Promise.all([
+                    fetchBinanceDataService(targetAmount, 'BUY').catch(() => null),
+                    fetchBinanceDataService(targetAmount, 'SELL').catch(() => null)
+                ]);
 
-                const res = await fetchBinanceDataService(targetAmount);
-                if (res.success && res.data.length > 0) {
-                    const lowPrice = parseFloat(res.data[0].adv.price);
-                    document.getElementById(`gridPrice_${targetAmount}`).innerText = `${lowPrice.toFixed(2)} NPR`;
-                    
-                    // Persistent Data Entry point execution
-                    storeMetricDataToAnalysisCache(targetAmount, lowPrice);
+                let buyPrice = null;
+                let sellPrice = null;
+
+                if (resBuy && resBuy.success && resBuy.data.length > 0) {
+                    buyPrice = parseFloat(resBuy.data[0].adv.price);
+                    document.getElementById(`gridBuy_${targetAmount}`).innerText = `${buyPrice.toFixed(2)}`;
+                }
+                if (resSell && resSell.success && resSell.data.length > 0) {
+                    sellPrice = parseFloat(resSell.data[0].adv.price);
+                    document.getElementById(`gridSell_${targetAmount}`).innerText = `${sellPrice.toFixed(2)}`;
+                }
+
+                if (buyPrice || sellPrice) {
+                    storeDualMetricToCache(targetAmount, buyPrice, sellPrice);
                     if (targetAmount === selectedAnalysisAmount) updateAnalysisMetricChartDisplay();
                 }
-                
+
                 roundRobinTrackingIndex = (roundRobinTrackingIndex + 1) % trackingAmountsArray.length;
             } catch (e) {
-                console.warn("Crawler sequence exception bypassed.");
+                console.warn("Crawler skipped single grid block tick.");
             } finally {
                 activeProcessMutexLock = false;
                 elStatusDot.className = 'pulse-dot';
                 elStatusMessage.innerText = 'Sync Active';
-                elMatrixCounterLabel.innerText = 'Grid Synchronized';
+                elMatrixCounterLabel.innerText = 'Grid Matrix Updated';
             }
         }
 
-        function storeMetricDataToAnalysisCache(amount, price) {
+        function storeDualMetricToCache(amount, buyPrice, sellPrice) {
             try {
-                let cache = JSON.parse(localStorage.getItem('binance_p2p_analysis_v2')) || {};
+                let cache = JSON.parse(localStorage.getItem('binance_p2p_dual_analysis')) || {};
                 if (!cache[amount]) cache[amount] = [];
                 
+                const lastEntry = cache[amount][cache[amount].length - 1];
+                
+                // If prices are identical to the last frame, don't flood the chart unless changed!
+                if (lastEntry && lastEntry.buy === buyPrice && lastEntry.sell === sellPrice) {
+                    return; 
+                }
+
                 const dataPoint = {
                     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                    price: price
+                    buy: buyPrice || (lastEntry ? lastEntry.buy : 0),
+                    sell: sellPrice || (lastEntry ? lastEntry.sell : 0)
                 };
 
                 cache[amount].push(dataPoint);
-                if (cache[amount].length > 40) cache[amount].shift(); // Keep visual bounds streamlined
-                localStorage.setItem('binance_p2p_analysis_v2', JSON.stringify(cache));
+                if (cache[amount].length > 50) cache[amount].shift(); // Screen limits optimization
+                localStorage.setItem('binance_p2p_dual_analysis', JSON.stringify(cache));
             } catch (e) { console.error(e); }
         }
 
         function updateAnalysisMetricChartDisplay() {
             try {
-                const cache = JSON.parse(localStorage.getItem('binance_p2p_analysis_v2')) || {};
+                const cache = JSON.parse(localStorage.getItem('binance_p2p_dual_analysis')) || {};
                 const dataset = cache[selectedAnalysisAmount] || [];
                 
                 globalAnalysisChartInstance.data.labels = dataset.map(d => d.time);
-                globalAnalysisChartInstance.data.datasets[0].data = dataset.map(d => d.price);
-                globalAnalysisChartInstance.update('none');
+                globalAnalysisChartInstance.data.datasets[0].data = dataset.map(d => d.buy);
+                globalAnalysisChartInstance.data.datasets[1].data = dataset.map(d => d.sell);
+                globalAnalysisChartInstance.update('none'); // Instant rendering engine acceleration
 
-                const livePriceNode = document.getElementById(`gridPrice_${selectedAnalysisAmount}`);
-                if (livePriceNode && dataset.length > 0) {
-                    livePriceNode.innerText = `${dataset[dataset.length - 1].price.toFixed(2)} NPR`;
+                // Keep Grid Card numbers active and matching
+                if (dataset.length > 0) {
+                    const lastNode = dataset[dataset.length - 1];
+                    if(document.getElementById(`gridBuy_${selectedAnalysisAmount}`)) {
+                        document.getElementById(`gridBuy_${selectedAnalysisAmount}`).innerText = lastNode.buy ? lastNode.buy.toFixed(2) : '—';
+                        document.getElementById(`gridSell_${selectedAnalysisAmount}`).innerText = lastNode.sell ? lastNode.sell.toFixed(2) : '—';
+                    }
                 }
             } catch (e) { console.error(e); }
         }
@@ -822,8 +772,8 @@
         }
 
         function wipeLocalCache() {
-            if (confirm("Reset historical metric collection records?")) {
-                localStorage.removeItem('binance_p2p_analysis_v2');
+            if (confirm("Reset dual analytics historic store records?")) {
+                localStorage.removeItem('binance_p2p_dual_analysis');
                 localStorage.removeItem('binance_p2p_nepal_memory');
                 location.reload();
             }
