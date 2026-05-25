@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binance P2P Clone with Left Filter</title>
+    <title>Binance P2P Clone - Fixed Data & Amount Ranges</title>
     <style>
         :root {
             --bg-color: #12161a;
@@ -14,7 +14,7 @@
             --green: #0ecb81;
             --red: #f6465d;
             --border-color: #2b3139;
-            --input-bg: #2b3139;
+            --radio-bg: #2b3139;
         }
 
         body {
@@ -26,28 +26,26 @@
         }
 
         .container {
-            max-width: 1250px;
-            margin: 30px auto;
+            max-width: 1300px;
+            margin: 20px auto;
         }
 
         h2 {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             font-size: 24px;
         }
 
-        .binance-logo {
-            color: var(--binance-yellow);
-        }
+        .binance-logo { color: var(--binance-yellow); }
 
-        /* Two Column Layout */
+        /* Grid Layout */
         .p2p-wrapper {
             display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 20px;
+            grid-template-columns: 300px 1fr;
+            gap: 24px;
             align-items: start;
         }
 
-        /* Left Side Filter Panel */
+        /* Left Side Sidebar Styles */
         .sidebar {
             background-color: var(--card-bg);
             border-radius: 12px;
@@ -60,51 +58,54 @@
             font-weight: 600;
             margin-bottom: 15px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
+            padding-bottom: 10px;
+            color: #fff;
         }
 
-        .filter-group {
-            margin-bottom: 18px;
+        /* Radio Range Container */
+        .range-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 5px;
         }
 
-        .filter-group label {
-            display: block;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
+        /* Custom Scrollbar for sidebar */
+        .range-container::-webkit-scrollbar {
+            width: 5px;
+        }
+        .range-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
         }
 
-        .filter-group input {
-            width: 100%;
-            box-sizing: border-box;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 10px;
+        .range-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 10px;
             border-radius: 6px;
-            font-size: 14px;
-            outline: none;
+            transition: background 0.2s;
         }
 
-        .filter-group input:focus {
-            border-color: var(--binance-yellow);
+        .range-item:hover {
+            background-color: var(--radio-bg);
         }
 
-        .filter-btn {
-            width: 100%;
-            background-color: var(--binance-yellow);
-            color: #000;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: bold;
+        .range-item input[type="radio"] {
+            accent-color: var(--binance-yellow);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .range-item label {
             cursor: pointer;
             font-size: 14px;
-            transition: opacity 0.2s;
-        }
-
-        .filter-btn:hover {
-            opacity: 0.9;
+            width: 100%;
         }
 
         /* Right Side Content Panel */
@@ -136,7 +137,7 @@
         .tab-btn.active-buy { color: var(--green); border-bottom: 3px solid var(--green); }
         .tab-btn.active-sell { color: var(--red); border-bottom: 3px solid var(--red); }
 
-        /* Table CSS */
+        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -203,14 +204,65 @@
     
     <div class="p2p-wrapper">
         <aside class="sidebar">
-            <div class="sidebar-title">Filter Selection</div>
-            
-            <div class="filter-group">
-                <label for="amountInput">Amount (NPR)</label>
-                <input type="number" id="amountInput" placeholder="Enter amount (e.g. 25000)">
+            <div class="sidebar-title">Amount Selection (NPR)</div>
+            <div class="range-container">
+                <div class="range-item">
+                    <input type="radio" id="r-all" name="amtRange" value="all" checked onclick="applyFilter(0)">
+                    <label for="r-all">All Amounts</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-100" name="amtRange" value="100" onclick="applyFilter(100)">
+                    <label for="r-100">≥ रु 100</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-200" name="amtRange" value="200" onclick="applyFilter(200)">
+                    <label for="r-200">≥ रु 200</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-300" name="amtRange" value="300" onclick="applyFilter(300)">
+                    <label for="r-300">≥ रु 300</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-500" name="amtRange" value="500" onclick="applyFilter(500)">
+                    <label for="r-500">≥ रु 500</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-1k" name="amtRange" value="1000" onclick="applyFilter(1000)">
+                    <label for="r-1k">≥ रु 1,000 (1k)</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-1.5k" name="amtRange" value="1500" onclick="applyFilter(1500)">
+                    <label for="r-1.5k">≥ रु 1,500 (1.5k)</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-2k" name="amtRange" value="2000" onclick="applyFilter(2000)">
+                    <label for="r-2k">≥ रु 2,000 (2k)</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-3k" name="amtRange" value="3000" onclick="applyFilter(3000)">
+                    <label for="r-3k">≥ रु 3,000 (3k)</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-5k" name="amtRange" value="5000" onclick="applyFilter(5000)">
+                    <label for="r-5k">≥ रु 5,000 (5k)</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-10k" name="amtRange" value="10000" onclick="applyFilter(10000)">
+                    <label for="r-10k">≥ रु 10,000 (10k)</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-15k" name="amtRange" value="15000" onclick="applyFilter(15000)">
+                    <label for="r-15k">≥ रु 15,000 (15k)</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-20k" name="amtRange" value="20000" onclick="applyFilter(20000)">
+                    <label for="r-20k">≥ रु 20,000 (20k)</label>
+                </div>
+                <div class="range-item">
+                    <input type="radio" id="r-25k" name="amtRange" value="25000" onclick="applyFilter(25000)">
+                    <label for="r-25k">≥ रु 25,000 (25k)</label>
+                </div>
             </div>
-
-            <button class="filter-btn" onclick="applyFilter()">Search Amount</button>
         </aside>
 
         <main class="main-content">
@@ -237,35 +289,38 @@
 </div>
 
 <script>
-    // Raw Numbers मा राखिएको Mock Data (ताकि filter गर्न मिलोस्)
+    // FIXED & DIVERSE DATA (सानो र ठुलो सबै रेन्जको लागि सुहाउदो लिमिट सेट गरिएको छ)
     const masterData = {
         BUY: [
-            { name: "Crypto_Gorkha ✅", orders: "1,240 orders | 99.10%", price: "136.45", available: "850.00 USDT", min: 15000, max: 115000, payments: ["esewa", "bank"] },
-            { name: "Kathmandu_Traders", orders: "420 orders | 96.50%", price: "136.60", available: "1,500.00 USDT", min: 20000, max: 200000, payments: ["esewa", "khalti"] },
+            { name: "Crypto_Gorkha ✅", orders: "1,240 orders | 99.10%", price: "136.45", available: "50.00 USDT", min: 100, max: 5000, payments: ["esewa"] },
+            { name: "Chitwan_Crypto", orders: "310 orders | 94.20%", price: "136.50", available: "120.00 USDT", min: 300, max: 15000, payments: ["khalti", "esewa"] },
+            { name: "Kathmandu_Traders", orders: "420 orders | 96.50%", price: "136.60", available: "1,500.00 USDT", min: 1500, max: 80000, payments: ["esewa", "bank"] },
             { name: "Apex_Crypto_NP ✅", orders: "890 orders | 100.00%", price: "136.85", available: "320.15 USDT", min: 5000, max: 43000, payments: ["bank"] },
-            { name: "Himalayan_P2P", orders: "55 orders | 92.00%", price: "137.10", available: "100.00 USDT", min: 1000, max: 13000, payments: ["esewa"] }
+            { name: "Himalayan_P2P", orders: "55 orders | 92.00%", price: "137.10", available: "2,500.00 USDT", min: 20000, max: 350000, payments: ["bank"] }
         ],
         SELL: [
-            { name: "NP_Whale_Trader ✅", orders: "2,100 orders | 98.40%", price: "135.20", available: "2,300.00 USDT", min: 50000, max: 300000, payments: ["esewa", "bank"] },
-            { name: "Pokhara_Exchange", orders: "310 orders | 95.00%", price: "135.05", available: "400.00 USDT", min: 10000, max: 54000, payments: ["khalti"] },
-            { name: "Bhairahawa_Crypto", orders: "650 orders | 97.20%", price: "134.90", available: "1,050.00 USDT", min: 15000, max: 14000, payments: ["esewa"] }
+            { name: "NP_Whale_Trader ✅", orders: "2,100 orders | 98.40%", price: "135.20", available: "2,300.00 USDT", min: 15000, max: 300000, payments: ["esewa", "bank"] },
+            { name: "Pokhara_Exchange", orders: "310 orders | 95.00%", price: "135.05", available: "400.00 USDT", min: 2000, max: 54000, payments: ["khalti"] },
+            { name: "Bhairahawa_Crypto", orders: "650 orders | 97.20%", price: "134.90", available: "80.00 USDT", min: 100, max: 10000, payments: ["esewa"] } // Fixed limit bug
         ]
     };
 
-    let currentMode = 'BUY'; // Global State track गर्न
+    let currentMode = 'BUY'; 
+    let currentSelectedAmount = 0;
 
-    function renderData(mode, filterAmount = null) {
+    function renderData(mode, filterAmount = 0) {
         const tbody = document.getElementById('p2p-data-rows');
         tbody.innerHTML = '';
 
-        // यदि प्रयोगकर्ताले रकम हालेको छ भने filter गर्ने, नत्र सबै देखाउने
         let dataRows = masterData[mode];
-        if (filterAmount !== null && filterAmount > 0) {
+        
+        // Filter logic: Check if selected amount falls within the merchant's min and max limit
+        if (filterAmount > 0) {
             dataRows = dataRows.filter(row => filterAmount >= row.min && filterAmount <= row.max);
         }
 
         if(dataRows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="no-data">No ads match your amount range filter.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="no-data">यो Amount Range मा कुनै पनि विज्ञापन उपलब्ध छैन।</td></tr>`;
             return;
         }
 
@@ -302,7 +357,6 @@
         });
     }
 
-    // Tab Switch गर्दा Amount filter लाई पनि ध्यान दिने
     function switchTab(mode) {
         currentMode = mode;
         const buyTab = document.getElementById('buyTab');
@@ -315,16 +369,16 @@
             buyTab.className = 'tab-btn';
             sellTab.className = 'tab-btn active-sell';
         }
-        applyFilter(); 
+        renderData(currentMode, currentSelectedAmount); 
     }
 
-    // Filter Button Click गर्दा चल्ने function
-    function applyFilter() {
-        const amountValue = parseFloat(document.getElementById('amountInput').value);
-        renderData(currentMode, isNaN(amountValue) ? null : amountValue);
+    // Radio click handler
+    function applyFilter(amount) {
+        currentSelectedAmount = amount;
+        renderData(currentMode, amount);
     }
 
-    // Initial load
+    // Initial default load
     renderData('BUY');
 </script>
 
