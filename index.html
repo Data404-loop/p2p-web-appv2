@@ -3,947 +3,1189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binance P2P Live Analytics Dashboard (USDT/NPR)</title>
+    <title>Binance P2P: Buy/Sell Crypto in Nepal (USDT/NPR)</title>
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-main: #0b0e11;
-            --bg-card: #181a20;
-            --bg-input: #2b3139;
-            --bg-input-hover: #353c44;
-            --text-primary: #eaecef;
-            --text-secondary: #848e9c;
-            --accent: #f0b90b;
-            --accent-hover: #ffe066;
-            --green: #0ecb81;
-            --red: #f6465d;
-            --border: #2b3139;
-            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --binance-black: #0b0e11;
+            --binance-gray-dark: #12161a;
+            --binance-bg-card: #1e2329;
+            --binance-bg-hover: #2b3139;
+            --binance-yellow: #F0B90B;
+            --binance-yellow-hover: #F8D147;
+            --binance-text-primary: #EAECEF;
+            --binance-text-secondary: #848E9C;
+            --binance-border: #2B3139;
+            --binance-green: #0ECB81;
+            --binance-red: #F6465D;
+            --font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: var(--font);
+            font-family: var(--font-family);
             -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            padding: 24px;
+            background-color: var(--binance-black);
+            color: var(--binance-text-primary);
             min-height: 100vh;
+            padding-bottom: 60px;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        /* Header Styles */
-        header {
+        /* Top Binance Navigation bar styling */
+        .binance-nav {
+            background-color: var(--binance-gray-dark);
+            border-bottom: 1px solid var(--binance-border);
+            padding: 14px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 16px;
         }
 
-        .brand-section {
+        .nav-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 24px;
         }
 
-        .logo-icon {
-            color: var(--accent);
-            font-size: 24px;
-            font-weight: bold;
-            background: rgba(240, 185, 11, 0.1);
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid rgba(240, 185, 11, 0.2);
-        }
-
-        h1 {
-            font-size: 22px;
-            font-weight: 600;
+        .binance-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--binance-yellow);
+            font-size: 20px;
+            font-weight: 800;
             letter-spacing: -0.5px;
         }
 
-        .status-container {
+        .logo-glyph {
+            background: var(--binance-yellow);
+            color: var(--binance-black);
+            width: 26px;
+            height: 26px;
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-
-        .badge {
-            font-size: 12px;
-            font-weight: 600;
-            padding: 4px 8px;
+            justify-content: center;
             border-radius: 4px;
-            text-transform: uppercase;
+            font-weight: 900;
+            font-size: 16px;
         }
 
-        .badge-live {
-            background-color: rgba(14, 203, 129, 0.15);
-            color: var(--green);
-            border: 1px solid rgba(14, 203, 129, 0.3);
-        }
-
-        .badge-live.paused {
-            background-color: rgba(132, 142, 156, 0.15);
-            color: var(--text-secondary);
-            border: 1px solid rgba(132, 142, 156, 0.3);
-        }
-
-        /* Controls Panel */
-        .controls-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        .nav-links {
+            display: flex;
             gap: 20px;
-            align-items: flex-end;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--binance-text-primary);
         }
 
-        .control-group {
+        .nav-link.active {
+            color: var(--binance-yellow);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .pulse-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--binance-text-secondary);
+            background: rgba(255,255,255,0.03);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--binance-border);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--binance-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--binance-green);
+        }
+
+        .pulse-dot.paused {
+            background-color: var(--binance-text-secondary);
+            box-shadow: none;
+        }
+
+        /* P2P Main Workspace Wrapper */
+        .p2p-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Mode Selection Sub-Header (BUY/SELL Tabs) */
+        .p2p-direction-bar {
+            margin-top: 24px;
+            border-bottom: 1px solid var(--binance-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .direction-tabs {
+            display: flex;
+            gap: 32px;
+        }
+
+        .direction-tab {
+            font-size: 20px;
+            font-weight: 600;
+            padding-bottom: 14px;
+            cursor: pointer;
+            position: relative;
+            color: var(--binance-text-secondary);
+            user-select: none;
+        }
+
+        .direction-tab.active-buy {
+            color: var(--binance-green);
+        }
+
+        .direction-tab.active-buy::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--binance-green);
+        }
+
+        .direction-tab.active-sell {
+            color: var(--binance-red);
+        }
+
+        .direction-tab.active-sell::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--binance-red);
+        }
+
+        .asset-pills {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding-bottom: 12px;
+        }
+
+        .asset-pill {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 12px;
+            cursor: pointer;
+            color: var(--binance-text-secondary);
+        }
+
+        .asset-pill.active {
+            color: var(--binance-yellow);
+        }
+
+        /* Binance Configuration Filter Strip */
+        .p2p-filter-strip {
+            background-color: var(--binance-black);
+            padding: 24px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .filter-item {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
-        label {
+        .filter-label {
             font-size: 12px;
-            color: var(--text-secondary);
+            color: var(--binance-text-secondary);
             font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        select, input {
-            background-color: var(--bg-input);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
+        .filter-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-select, .filter-input {
+            background-color: var(--binance-gray-dark);
+            color: var(--binance-text-primary);
+            border: 1px solid var(--binance-border);
+            border-radius: 4px;
+            padding: 10px 14px;
             font-size: 14px;
             font-weight: 500;
             outline: none;
-            transition: all 0.2s ease;
-            width: 100%;
+            min-width: 180px;
+            height: 40px;
+            transition: border-color 0.15s ease;
         }
 
-        select:hover, input:hover {
-            border-color: var(--text-secondary);
-            background-color: var(--bg-input-hover);
+        .filter-select:hover, .filter-input:hover {
+            border-color: var(--binance-text-secondary);
         }
 
-        select:focus, input:focus {
-            border-color: var(--accent);
+        .filter-select:focus, .filter-input:focus {
+            border-color: var(--binance-yellow);
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn {
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
+        .fiat-badge {
+            position: absolute;
+            right: 14px;
+            font-size: 13px;
             font-weight: 600;
+            color: var(--binance-text-secondary);
+            pointer-events: none;
+        }
+
+        /* Engine System Utility Button Controls */
+        .engine-utilities {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .utility-btn {
+            background-color: var(--binance-bg-card);
+            color: var(--binance-text-primary);
+            border: 1px solid var(--binance-border);
+            border-radius: 4px;
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
+            height: 40px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            width: 100%;
+            transition: background-color 0.15s ease;
         }
 
-        .btn-primary {
-            background-color: var(--accent);
-            color: #000000;
+        .utility-btn:hover {
+            background-color: var(--binance-bg-hover);
         }
 
-        .btn-primary:hover {
-            background-color: var(--accent-hover);
+        .utility-btn.primary-action {
+            background-color: var(--binance-yellow);
+            color: var(--binance-black);
+            font-weight: 600;
+            border: none;
         }
 
-        .btn-secondary {
-            background-color: var(--bg-input);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
+        .utility-btn.primary-action:hover {
+            background-color: var(--binance-yellow-hover);
         }
 
-        .btn-secondary:hover {
-            background-color: var(--bg-input-hover);
-            border-color: var(--text-secondary);
-        }
-
-        /* Toggle Button Container */
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
+        /* Hybrid Framework: Market Analytics Extension Block */
+        .analytics-drawer {
+            background-color: var(--binance-gray-dark);
+            border: 1px solid var(--binance-border);
             border-radius: 8px;
-            padding: 10px 14px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .drawer-header {
+            background-color: var(--binance-bg-card);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--binance-border);
             cursor: pointer;
             user-select: none;
-            gap: 12px;
-            justify-content: space-between;
         }
 
-        .toggle-container input {
-            display: none;
+        .drawer-title {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .switch {
-            position: relative;
-            width: 40px;
-            height: 22px;
-            background-color: #47525e;
-            border-radius: 20px;
-            transition: all 0.2s ease;
-        }
-
-        .switch::after {
-            content: '';
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background-color: white;
-            top: 3px;
-            left: 3px;
-            transition: all 0.2s ease;
-        }
-
-        .toggle-container input:checked + .switch {
-            background-color: var(--green);
-        }
-
-        .toggle-container input:checked + .switch::after {
-            left: 21px;
-        }
-
-        /* Analytics Panel Grid */
-        .analytics-grid {
+        .analytics-content {
+            padding: 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-        }
-
-        .card-title {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
-
-        .card-value {
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .card-value.green { color: var(--green); }
-        .card-value.red { color: var(--red); }
-        .card-value.gold { color: var(--accent); }
-
-        .card-meta {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 8px;
-        }
-
-        /* Main Workspace: Chart & Sidebar */
-        .dashboard-workspace {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr 2fr;
             gap: 24px;
         }
 
-        @media (max-width: 1024px) {
-            .dashboard-workspace {
+        @media (max-width: 900px) {
+            .analytics-content {
                 grid-template-columns: 1fr;
             }
         }
 
-        .chart-card {
-            min-height: 450px;
-            display: flex;
-            flex-direction: column;
+        .stats-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            height: max-content;
         }
 
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        .stat-mini-card {
+            background: var(--binance-bg-card);
+            border: 1px solid var(--binance-border);
+            border-radius: 4px;
+            padding: 14px;
         }
 
-        .chart-container {
+        .mini-card-label {
+            font-size: 11px;
+            color: var(--binance-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .mini-card-value {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+
+        .mini-card-value.up { color: var(--binance-green); }
+        .mini-card-value.down { color: var(--binance-red); }
+        .mini-card-value.highlight { color: var(--binance-yellow); }
+
+        .chart-wrapper {
             position: relative;
-            flex-grow: 1;
+            height: 180px;
             width: 100%;
-            height: 100%;
         }
 
-        /* History Table View */
-        .history-card {
-            display: flex;
-            flex-direction: column;
-            max-height: 520px;
+        /* Hubahu Copy: Core Binance P2P Advertisement Order Book Table Layout */
+        .p2p-orderbook-container {
+            background-color: var(--binance-gray-dark);
+            border: 1px solid var(--binance-border);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
-        .table-wrapper {
-            overflow-y: auto;
-            margin-top: 12px;
-            flex-grow: 1;
-        }
-
-        table {
+        .p2p-table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
+        }
+
+        .p2p-table th {
+            background-color: var(--binance-bg-card);
+            color: var(--binance-text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--binance-border);
+        }
+
+        .p2p-table td {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--binance-border);
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .p2p-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Column Specific Formatting Rules */
+        .merchant-profile {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .merchant-name-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .merchant-name {
+            color: var(--binance-yellow);
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .merchant-name:hover {
+            text-decoration: underline;
+        }
+
+        .merchant-badge-logo {
+            background-color: rgba(240, 185, 11, 0.15);
+            color: var(--binance-yellow);
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .merchant-stats {
+            font-size: 12px;
+            color: var(--binance-text-secondary);
+        }
+
+        .price-display {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--binance-text-primary);
+            line-height: 1.2;
+        }
+
+        .price-fiat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--binance-text-secondary);
+            margin-left: 2px;
+        }
+
+        .limits-display {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
             font-size: 13px;
         }
 
-        th {
-            position: sticky;
-            top: 0;
-            background-color: var(--bg-card);
-            color: var(--text-secondary);
+        .limit-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .limit-label {
+            color: var(--binance-text-secondary);
+            min-width: 65px;
+        }
+
+        .limit-value {
+            color: var(--binance-text-primary);
             font-weight: 500;
-            padding: 10px 8px;
-            border-bottom: 1px solid var(--border);
-            text-transform: uppercase;
+        }
+
+        .payments-cell {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-width: 220px;
+        }
+
+        .payment-pill {
             font-size: 11px;
-            letter-spacing: 0.5px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 3px;
+            background-color: var(--binance-bg-card);
+            border-left: 3px solid var(--binance-text-secondary);
         }
 
-        td {
-            padding: 12px 8px;
-            border-bottom: 1px solid #22262d;
-            font-weight: 500;
+        /* Nepali context targeted payment badges matching exact tone values */
+        .payment-pill.esewa { border-left-color: #60bb46; background-color: rgba(96,187,70,0.06); color: #8ae472; }
+        .payment-pill.khalti { border-left-color: #5c2d91; background-color: rgba(92,45,145,0.06); color: #b185e7; }
+        .payment-pill.bank { border-left-color: #0066b2; background-color: rgba(0,102,178,0.06); color: #66b2ff; }
+        .payment-pill.imepay { border-left-color: #ff4500; background-color: rgba(255,69,0,0.06); color: #ff8c66; }
+
+        .action-cell {
+            text-align: right;
         }
 
-        tr:hover td {
-            background-color: rgba(255, 255, 255, 0.02);
-        }
-
-        /* Global Notification banner */
-        .alert-banner {
-            padding: 14px 20px;
-            border-radius: 8px;
+        .trade-action-btn {
+            border: none;
+            border-radius: 4px;
+            color: white;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
+            padding: 10px 24px;
+            cursor: pointer;
+            transition: filter 0.15s ease;
+            min-width: 110px;
+        }
+
+        .trade-action-btn.buy-bg {
+            background-color: var(--binance-green);
+        }
+
+        .trade-action-btn.sell-bg {
+            background-color: var(--binance-red);
+        }
+
+        .trade-action-btn:hover {
+            filter: brightness(1.15);
+        }
+
+        /* Error, Shimmering Loading & Empty Overlay States */
+        .alert-banner {
+            background-color: rgba(246, 70, 93, 0.1);
+            border: 1px solid rgba(246, 70, 93, 0.2);
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--binance-red);
+            margin-bottom: 20px;
             display: none;
             align-items: center;
             justify-content: space-between;
-            animation: fadeIn 0.3s ease;
         }
 
-        .alert-danger {
-            background-color: rgba(246, 70, 93, 0.15);
-            color: var(--red);
-            border: 1px solid rgba(246, 70, 93, 0.3);
+        .state-container {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--binance-text-secondary);
         }
 
-        /* Loading Indicator */
-        .loader {
-            width: 18px;
-            height: 18px;
-            border: 2px solid transparent;
+        .loader-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(240, 185, 11, 0.1);
             border-radius: 50%;
-            border-top-color: currentColor;
+            border-top-color: var(--binance-yellow);
             animation: spin 0.8s linear infinite;
-            display: none;
-        }
-
-        .btn .loader {
-            display: inline-block;
+            margin: 0 auto 16px auto;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-4px); }
-            to { opacity: 1; transform: translateY(0); }
+        .toggle-switch-input {
+            display: none;
         }
 
-        /* Custom Scrollbar Styles */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        .toggle-switch-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--binance-text-secondary);
+            user-select: none;
         }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-main);
+
+        .toggle-track {
+            position: relative;
+            width: 36px;
+            height: 18px;
+            background-color: #47525e;
+            border-radius: 10px;
+            transition: background-color 0.15s ease;
         }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: white;
+            top: 2px;
+            left: 2px;
+            transition: left 0.15s ease;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
+
+        .toggle-switch-input:checked + .toggle-track {
+            background-color: var(--binance-green);
+        }
+
+        .toggle-switch-input:checked + .toggle-track::after {
+            left: 20px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <div class="brand-section">
-                <div class="logo-icon">⇄</div>
-                <div>
-                    <h1>Binance P2P Live Analytics</h1>
-                    <p style="font-size: 12px; color: var(--text-secondary);">USDT / NPR Nepal Fiat Market Context</p>
+    <!-- Top Navigation Bar Layout Component -->
+    <nav class="binance-nav">
+        <div class="nav-left">
+            <a href="#" class="binance-logo">
+                <span class="logo-glyph">❖</span>BINANCE <span style="color: var(--binance-text-primary); font-weight: 400; font-size:14px; margin-left:4px; padding-left:8px; border-left:1px solid var(--binance-border);">P2P Market</span>
+            </a>
+            <div class="nav-links">
+                <span class="nav-link active">P2P Trading</span>
+                <span class="nav-link" style="color: var(--binance-text-secondary); opacity: 0.6;">Express</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="pulse-indicator">
+                <div id="statusDot" class="pulse-dot"></div>
+                <span id="statusMessage">Engine Operational</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="p2p-container">
+        
+        <!-- Tab Layout Controls (Buy vs Sell Orders) -->
+        <section class="p2p-direction-bar">
+            <div class="direction-tabs">
+                <div id="tabBuy" class="direction-tab active-buy" onclick="setTradeDirection('BUY')">Buy</div>
+                <div id="tabSell" class="direction-tab" onclick="setTradeDirection('SELL')">Sell</div>
+            </div>
+            <div class="asset-pills">
+                <span class="asset-pill active">USDT</span>
+                <span class="asset-pill" style="opacity:0.4; cursor:not-allowed;">BTC</span>
+                <span class="asset-pill" style="opacity:0.4; cursor:not-allowed;">BUSD</span>
+                <span class="asset-pill" style="opacity:0.4; cursor:not-allowed;">NPR Market Overview</span>
+            </div>
+        </section>
+
+        <!-- Dynamic Filter Settings Control Board Row -->
+        <section class="p2p-filter-strip">
+            <div class="filter-item">
+                <span class="filter-label">Amount Required</span>
+                <div class="filter-input-wrapper">
+                    <select id="amountFilter" class="filter-select" style="padding-right: 40px;">
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                        <option value="300">300</option>
+                        <option value="400">400</option>
+                        <option value="500">500</option>
+                        <option value="1000" selected>1,000</option>
+                        <option value="1500">1,500</option>
+                        <option value="2000">2,000</option>
+                        <option value="3000">3,000</option>
+                        <option value="4000">4,000</option>
+                        <option value="5000">5,000</option>
+                        <option value="10000">10,000</option>
+                        <option value="15000">15,000</option>
+                        <option value="20000">20,000</option>
+                        <option value="25000">25,000</option>
+                        <option value="30000">30,000</option>
+                        <option value="40000">40,000</option>
+                        <option value="50000">50,000</option>
+                    </select>
+                    <span class="fiat-badge">NPR</span>
                 </div>
             </div>
-            <div class="status-container">
-                <div id="liveBadge" class="badge badge-live">● Live</div>
-                <div id="loadingIndicator" class="loader" style="display: block; color: var(--accent);"></div>
-            </div>
-        </header>
 
-        <div id="alertBanner" class="alert-banner alert-danger">
-            <span id="alertMessage">Error messages show here.</span>
-            <button class="btn-secondary" style="padding: 4px 10px; border-radius: 4px; font-size: 11px;" onclick="clearError()">Dismiss</button>
-        </div>
-
-        <section class="controls-card">
-            <div class="control-group">
-                <label for="tradeTypeFilter">Trade Type (Direction)</label>
-                <select id="tradeTypeFilter">
-                    <option value="BUY" selected>BUY (Show Crypto Sellers)</option>
-                    <option value="SELL">SELL (Show Crypto Buyers)</option>
+            <div class="filter-item">
+                <span class="filter-label">Fiat Currency Context</span>
+                <select class="filter-select" disabled style="opacity: 0.8; cursor: not-allowed;">
+                    <option>NPR (Nepalese Rupee)</option>
                 </select>
             </div>
 
-            <div class="control-group">
-                <label for="amountFilter">Transaction Volume Filter</label>
-                <select id="amountFilter">
-                    <option value="100">100 NPR</option>
-                    <option value="200">200 NPR</option>
-                    <option value="300">300 NPR</option>
-                    <option value="400">400 NPR</option>
-                    <option value="500">500 NPR</option>
-                    <option value="1000" selected>1,000 NPR</option>
-                    <option value="1500">1,500 NPR</option>
-                    <option value="2000">2,000 NPR</option>
-                    <option value="3000">3,000 NPR</option>
-                    <option value="4000">4,000 NPR</option>
-                    <option value="5000">5,000 NPR</option>
-                    <option value="10000">10,000 NPR</option>
-                    <option value="15000">15,000 NPR</option>
-                    <option value="20000">20,000 NPR</option>
-                    <option value="25000">25,000 NPR</option>
-                    <option value="30000">30,000 NPR</option>
-                    <option value="40000">40,000 NPR</option>
-                    <option value="50000">50,000 NPR</option>
+            <div class="filter-item">
+                <span class="filter-label">Proxy Channel Topology</span>
+                <select id="proxySystem" class="filter-select">
+                    <option value="corsproxy">CorsProxy.io (Global)</option>
+                    <option value="allorigins">AllOrigins Network Gateway</option>
                 </select>
             </div>
 
-            <div class="control-group">
-                <label for="proxySystem">CORS Proxy Architecture</label>
-                <select id="proxySystem">
-                    <option value="corsproxy">CorsProxy.io (Recommended)</option>
-                    <option value="allorigins">AllOrigins.win (Alternative)</option>
-                    <option value="custom">Custom Configuration Gateway</option>
-                </select>
-            </div>
-
-            <div class="control-group" id="customProxyWrapper" style="display: none;">
-                <label for="customProxyInput">Target Gateway Address</label>
-                <input type="text" id="customProxyInput" value="https://api.allorigins.win/raw?url=" placeholder="https://proxy.domain/path?url=">
-            </div>
-
-            <div class="control-group">
-                <label class="toggle-container">
-                    <span>Engine Auto-Refresh</span>
-                    <input type="checkbox" id="autoRefreshToggle" checked>
-                    <div class="switch"></div>
+            <div class="filter-item" style="padding-bottom: 10px;">
+                <label class="toggle-switch-label">
+                    <input type="checkbox" id="autoRefreshToggle" class="toggle-switch-input" checked>
+                    <div class="toggle-track"></div>
+                    <span>Auto 5s Refresh</span>
                 </label>
             </div>
 
-            <div class="action-buttons">
-                <button id="manualRefreshBtn" class="btn btn-primary">
-                    <span id="btnText">Sync Engine</span>
-                </button>
-                <button class="btn btn-secondary" onclick="clearSystemData()" style="max-width: 110px;" title="Wipe stored history logs">Clear Log</button>
+            <div class="engine-utilities">
+                <button id="manualRefreshBtn" class="utility-btn primary-action">Search Offers</button>
+                <button class="utility-btn" onclick="wipeLocalCache()" title="Wipe analytical tracking cache data logs">Reset Cache</button>
             </div>
         </section>
 
-        <section class="analytics-grid">
-            <div class="card">
-                <div class="card-title" id="lowCardTitle">Lowest Price</div>
-                <div class="card-value green" id="lowPriceValue">—</div>
-                <div class="card-meta">Optimal market match entry</div>
+        <!-- System Diagnostic Error Interface Alert Block -->
+        <div id="alertBanner" class="alert-banner">
+            <span id="alertMessage">Diagnostic error notifications.</span>
+        </div>
+
+        <!-- Integrated Analytics Layer & Realtime Trends Drawer Component -->
+        <section class="analytics-drawer">
+            <div class="drawer-header" onclick="toggleAnalyticsDrawer()">
+                <div class="drawer-title">
+                    <span style="color: var(--binance-yellow);">📈</span> Advanced Real-Time Market Valuation Analytics Panel
+                </div>
+                <span id="drawerToggleIcon" style="font-size:12px; color: var(--binance-text-secondary);">[ COLLAPSE ]</span>
             </div>
-            <div class="card">
-                <div class="card-title" id="highCardTitle">Highest Price</div>
-                <div class="card-value red" id="highPriceValue">—</div>
-                <div class="card-meta">Maximum valuation threshold</div>
-            </div>
-            <div class="card">
-                <div class="card-title">Market Orderbook Spread</div>
-                <div class="card-value gold" id="spreadValue">—</div>
-                <div class="card-meta" id="spreadPercent">Discrepancy valuation metrics</div>
-            </div>
-            <div class="card">
-                <div class="card-title">Engine Pulse Synchronization</div>
-                <div class="card-value" id="lastUpdatedValue" style="font-size: 24px; padding-top: 8px;">—</div>
-                <div class="card-meta" id="sessionCount">Session updates recorded: 0</div>
+            <div id="drawerBody" class="analytics-content">
+                <div class="stats-summary-grid">
+                    <div class="stat-mini-card">
+                        <div class="mini-card-label" id="lowCardLabel">Lowest Order</div>
+                        <div class="mini-card-value up" id="analyticsLow">—</div>
+                    </div>
+                    <div class="stat-mini-card">
+                        <div class="mini-card-label" id="highCardLabel">Highest Order</div>
+                        <div class="mini-card-value down" id="analyticsHigh">—</div>
+                    </div>
+                    <div class="stat-mini-card">
+                        <div class="mini-card-label">Order Spread</div>
+                        <div class="mini-card-value highlight" id="analyticsSpread">—</div>
+                    </div>
+                    <div class="stat-mini-card">
+                        <div class="mini-card-label">Last Synchronization</div>
+                        <div class="mini-card-value" id="analyticsTimestamp" style="font-size:13px; font-weight:500; color:var(--binance-text-primary); padding-top:4px;">—</div>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="binanceLiveTrendChart"></canvas>
+                </div>
             </div>
         </section>
 
-        <section class="dashboard-workspace">
-            <div class="card chart-card">
-                <div class="chart-header">
-                    <h3 style="font-size: 16px; font-weight: 600;" id="chartMainHeader">Active Session Price Trend Matrix</h3>
-                    <span style="font-size: 12px; color: var(--text-secondary);">Real-time stream (Window: 20-50 ticks)</span>
-                </div>
-                <div class="chart-container">
-                    <canvas id="liveAnalyticsChart"></canvas>
-                </div>
-            </div>
-
-            <div class="card history-card">
-                <h3 style="font-size: 16px; font-weight: 600;">Real-Time Feed Audit Logs</h3>
-                <div class="table-wrapper">
-                    <table id="ticksTable">
-                        <thead>
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>Target Vol</th>
-                                <th>Low (NPR)</th>
-                                <th>High (NPR)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ticksTableBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
+        <!-- Hubahu Copy: Main P2P Order Book Advertisement List -->
+        <section class="p2p-orderbook-container">
+            <table class="p2p-table" id="p2pBookTable">
+                <thead>
+                    <tr>
+                        <th style="width: 28%;">Advertiser</th>
+                        <th style="width: 22%;">Price</th>
+                        <th style="width: 28%;">Available / Limit</th>
+                        <th style="width: 22%;">Payment Methods</th>
+                        <th style="text-align: right; width: 15%;">Trade Action</th>
+                    </tr>
+                </thead>
+                <tbody id="p2pTableBody">
+                    <!-- Shimmer / Static state loader handles content replacement below -->
+                    <tr>
+                        <td colspan="5">
+                            <div class="state-container">
+                                <div class="loader-spinner"></div>
+                                <p>Synchronizing real-time Binance P2P API advertisement data blocks...</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
+
     </div>
 
     <script>
-        // Execution State Variables
-        let chartInstance = null;
-        let sessionDataPoints = [];
-        let dataRefreshIntervalId = null;
-        let engineExecutionLock = false;
-        let runningSessionTickCount = 0;
+        // Execution Runtime Memory Context Configurations
+        let currentTradeType = 'BUY'; 
+        let globalChartInstance = null;
+        let sessionHistoricalBuffer = [];
+        let enginePollingIntervalId = null;
+        let activeProcessMutexLock = false;
 
-        // Dom Element Selectors
-        const elLowPrice = document.getElementById('lowPriceValue');
-        const elHighPrice = document.getElementById('highPriceValue');
-        const elSpread = document.getElementById('spreadValue');
-        const elSpreadPercent = document.getElementById('spreadPercent');
-        const elLastUpdated = document.getElementById('lastUpdatedValue');
-        const elSessionCount = document.getElementById('sessionCount');
+        // Dom Tree Access Selectors
         const elAmountFilter = document.getElementById('amountFilter');
-        const elTradeTypeFilter = document.getElementById('tradeTypeFilter');
         const elProxySystem = document.getElementById('proxySystem');
-        const elCustomProxyWrapper = document.getElementById('customProxyWrapper');
-        const elCustomProxyInput = document.getElementById('customProxyInput');
         const elAutoRefreshToggle = document.getElementById('autoRefreshToggle');
         const elManualRefreshBtn = document.getElementById('manualRefreshBtn');
-        const elBtnText = document.getElementById('btnText');
-        const elLiveBadge = document.getElementById('liveBadge');
-        const elLoadingIndicator = document.getElementById('loadingIndicator');
+        const elTableBody = document.getElementById('p2pTableBody');
+        const elStatusDot = document.getElementById('statusDot');
+        const elStatusMessage = document.getElementById('statusMessage');
         const elAlertBanner = document.getElementById('alertBanner');
         const elAlertMessage = document.getElementById('alertMessage');
-        const elTicksTableBody = document.getElementById('ticksTableBody');
-        const elLowCardTitle = document.getElementById('lowCardTitle');
-        const elHighCardTitle = document.getElementById('highCardTitle');
-        const elChartMainHeader = document.getElementById('chartMainHeader');
+        
+        const elAnalyticsLow = document.getElementById('analyticsLow');
+        const elAnalyticsHigh = document.getElementById('analyticsHigh');
+        const elAnalyticsSpread = document.getElementById('analyticsSpread');
+        const elAnalyticsTimestamp = document.getElementById('analyticsTimestamp');
+        
+        const elLowCardLabel = document.getElementById('lowCardLabel');
+        const elHighCardLabel = document.getElementById('highCardLabel');
+        const elDrawerBody = document.getElementById('drawerBody');
+        const elDrawerToggleIcon = document.getElementById('drawerToggleIcon');
 
-        // Application Startup Configurations
+        // Application Lifecyle Core Pipeline Startup
         window.addEventListener('DOMContentLoaded', () => {
-            initializeChart();
-            bindEventStructures();
-            updateUIVisualsForTradeType();
+            initializeTrendChart();
+            registerStructuralEvents();
             executeDataSyncPipeline();
-            configureEngineScheduling();
+            configureEngineIntervalTracking();
         });
 
-        // Initialize Chart.js Component with Dark Theme Settings
-        function initializeChart() {
-            const ctx = document.getElementById('liveAnalyticsChart').getContext('2d');
-            chartInstance = new Chart(ctx, {
+        // Initialize Dark Theme Binance Styled Chart Component
+        function initializeTrendChart() {
+            const chartContext = document.getElementById('binanceLiveTrendChart').getContext('2d');
+            globalChartInstance = new Chart(chartContext, {
                 type: 'line',
                 data: {
                     labels: [],
                     datasets: [
                         {
-                            label: 'Lowest Price',
+                            label: 'Lowest Price Stream',
                             borderColor: '#0ecb81',
-                            backgroundColor: 'rgba(14, 203, 129, 0.06)',
+                            backgroundColor: 'rgba(14, 203, 129, 0.03)',
                             borderWidth: 2,
                             data: [],
-                            tension: 0.25,
+                            tension: 0.15,
                             fill: true,
-                            pointRadius: 1.5,
-                            pointHoverRadius: 5,
-                            pointHitRadius: 10
+                            pointRadius: 1
                         },
                         {
-                            label: 'Highest Price',
+                            label: 'Highest Price Stream',
                             borderColor: '#f6465d',
-                            backgroundColor: 'rgba(246, 70, 93, 0.06)',
+                            backgroundColor: 'rgba(246, 70, 93, 0.03)',
                             borderWidth: 2,
                             data: [],
-                            tension: 0.25,
+                            tension: 0.15,
                             fill: true,
-                            pointRadius: 1.5,
-                            pointHoverRadius: 5,
-                            pointHitRadius: 10
+                            pointRadius: 1
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
                     plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: '#eaecef',
-                                font: { weight: 500, size: 12 }
-                            }
-                        },
+                        legend: { display: false },
                         tooltip: {
                             backgroundColor: '#1e2329',
                             titleColor: '#eaecef',
                             bodyColor: '#eaecef',
                             borderColor: '#2b3139',
-                            borderWidth: 1,
-                            padding: 12,
-                            displayColors: true,
-                            boxPadding: 6
+                            borderWidth: 1
                         }
                     },
                     scales: {
-                        x: {
-                            grid: { color: '#21262c', drawTicks: false },
-                            ticks: { color: '#848e9c', font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }
-                        },
-                        y: {
-                            grid: { color: '#21262c', drawTicks: false },
-                            ticks: { color: '#848e9c', font: { size: 11 } }
-                        }
+                        x: { grid: { display: false }, ticks: { color: '#848e9c', font: { size: 10 } } },
+                        y: { grid: { color: '#2b3139' }, ticks: { color: '#848e9c', font: { size: 10 } } }
                     }
                 }
             });
         }
 
-        // Adjust UI context labels based on Buy or Sell configuration structures
-        function updateUIVisualsForTradeType() {
-            const currentTradeType = elTradeTypeFilter.value;
-            if (currentTradeType === 'BUY') {
-                elLowCardTitle.innerText = "Lowest Price (Buy Opportunity)";
-                elHighCardTitle.innerText = "Highest Price (Buy Context)";
-                elChartMainHeader.innerText = "Active Session BUY Trend Matrix";
-                chartInstance.data.datasets[0].label = 'Lowest Price (Buy)';
-                chartInstance.data.datasets[1].label = 'Highest Price (Buy)';
-            } else {
-                elLowCardTitle.innerText = "Lowest Price (Sell Context)";
-                elHighCardTitle.innerText = "Highest Price (Sell Opportunity)";
-                elChartMainHeader.innerText = "Active Session SELL Trend Matrix";
-                chartInstance.data.datasets[0].label = 'Lowest Price (Sell)';
-                chartInstance.data.datasets[1].label = 'Highest Price (Sell)';
-            }
-            chartInstance.update('none');
-        }
-
-        // Binding Structural DOM Events
-        function bindEventStructures() {
-            elAmountFilter.addEventListener('change', () => {
-                sessionDataPoints = []; // reset active tracking path on volume parameter context flip
-                executeDataSyncPipeline();
-            });
-
-            elTradeTypeFilter.addEventListener('change', () => {
-                sessionDataPoints = []; // reset active dataset view on trade layout flips
-                updateUIVisualsForTradeType();
-                executeDataSyncPipeline();
-            });
-
-            elProxySystem.addEventListener('change', (e) => {
-                if (e.target.value === 'custom') {
-                    elCustomProxyWrapper.style.display = 'block';
-                } else {
-                    elCustomProxyWrapper.style.display = 'none';
-                }
-                executeDataSyncPipeline();
-            });
-
-            elAutoRefreshToggle.addEventListener('change', configureEngineScheduling);
+        // Register DOM Control Event Triggers
+        function registerStructuralEvents() {
+            elAmountFilter.addEventListener('change', resetAndSyncPipeline);
+            elProxySystem.addEventListener('change', executeDataSyncPipeline);
+            elAutoRefreshToggle.addEventListener('change', configureEngineIntervalTracking);
             elManualRefreshBtn.addEventListener('click', executeDataSyncPipeline);
         }
 
-        // Configure Engine Polling Interval Strategy
-        function configureEngineScheduling() {
-            const isAutoEnabled = elAutoRefreshToggle.checked;
-            
-            if (isAutoEnabled) {
-                if (!dataRefreshIntervalId) {
-                    dataRefreshIntervalId = setInterval(executeDataSyncPipeline, 5000);
-                }
-                elLiveBadge.classList.remove('paused');
-                elLiveBadge.innerText = '● Live';
+        function setTradeDirection(direction) {
+            if (currentTradeType === direction) return;
+            currentTradeType = direction;
+
+            // Handle UI Class Transitions to match Binance standard green/red indicators
+            const tabBuy = document.getElementById('tabBuy');
+            const tabSell = document.getElementById('tabSell');
+
+            if (direction === 'BUY') {
+                tabBuy.className = 'direction-tab active-buy';
+                tabSell.className = 'direction-tab';
+                elLowCardLabel.innerText = "Lowest Buy (Entry)";
+                elHighCardLabel.innerText = "Highest Buy (Cap)";
             } else {
-                if (dataRefreshIntervalId) {
-                    clearInterval(dataRefreshIntervalId);
-                    dataRefreshIntervalId = null;
-                }
-                elLiveBadge.classList.add('paused');
-                elLiveBadge.innerText = '● Paused';
+                tabBuy.className = 'direction-tab';
+                tabSell.className = 'direction-tab active-sell';
+                elLowCardLabel.innerText = "Lowest Sell (Floor)";
+                elHighCardLabel.innerText = "Highest Sell (Exit)";
+            }
+
+            resetAndSyncPipeline();
+        }
+
+        function resetAndSyncPipeline() {
+            sessionHistoricalBuffer = []; // Clear current active display windows on filter flip contexts
+            executeDataSyncPipeline();
+        }
+
+        function toggleAnalyticsDrawer() {
+            if (elDrawerBody.style.display === 'none') {
+                elDrawerBody.style.display = 'grid';
+                elDrawerToggleIcon.innerText = '[ COLLAPSE ]';
+            } else {
+                elDrawerBody.style.display = 'none';
+                elDrawerToggleIcon.innerText = '[ EXPAND ]';
             }
         }
 
-        // Main Core Data Pipeline Orchestrator
-        async function executeDataSyncPipeline() {
-            if (engineExecutionLock) return;
-            engineExecutionLock = true;
-            toggleLoadingState(true);
+        // Configure Background Engine Polling Strategies
+        function configureEngineIntervalTracking() {
+            const isAutoActive = elAutoRefreshToggle.checked;
+            if (isAutoActive) {
+                if (!enginePollingIntervalId) {
+                    enginePollingIntervalId = setInterval(executeDataSyncPipeline, 5000);
+                }
+                elStatusDot.className = 'pulse-dot';
+                elStatusMessage.innerText = 'Engine Operational';
+            } else {
+                if (enginePollingIntervalId) {
+                    clearInterval(enginePollingIntervalId);
+                    enginePollingIntervalId = null;
+                }
+                elStatusDot.className = 'pulse-dot paused';
+                elStatusMessage.innerText = 'Engine Paused';
+            }
+        }
 
-            const chosenAmount = elAmountFilter.value;
-            const chosenTradeType = elTradeTypeFilter.value;
-            const targetProxyConfig = elProxySystem.value;
+        // Main Fetch Extraction & Calculation Engine Pipeline Orchestration
+        async function executeDataSyncPipeline() {
+            if (activeProcessMutexLock) return;
+            activeProcessMutexLock = true;
             
-            let proxyPrefixUrl = 'https://corsproxy.io/?url=';
-            if (targetProxyConfig === 'allorigins') {
+            toggleTableLoadingIndicator(true);
+
+            const targetVolumeAmount = elAmountFilter.value;
+            const operationalProxyKey = elProxySystem.value;
+
+            let proxyEndpointPrefix = 'https://corsproxy.io/?url=';
+            if (operationalProxyKey === 'allorigins') {
                 proxyPrefixUrl = 'https://api.allorigins.win/raw?url=';
-            } else if (targetProxyConfig === 'custom') {
-                proxyPrefixUrl = elCustomProxyInput.value;
             }
 
-            const binanceP2PEndpoint = 'https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search';
-            const completeRequestUri = proxyPrefixUrl + encodeURIComponent(binanceP2PEndpoint);
+            const nativeBinanceP2PApi = 'https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search';
+            const aggregatedQueryUri = proxyEndpointPrefix + encodeURIComponent(nativeBinanceP2PApi);
 
-            // Construct Binance P2P Payload mapped securely to custom trade direction matrix parameters
-            const payloadData = {
+            // Replicated standard native JSON request payload structures for merchant lookup
+            const binanceQueryPayload = {
                 "asset": "USDT",
                 "fiat": "NPR",
                 "merchantCheck": false,
                 "page": 1,
                 "payTypes": [],
                 "publisherType": null,
-                "rows": 20,
-                "tradeType": chosenTradeType,
-                "transAmount": chosenAmount
+                "rows": 15,
+                "tradeType": currentTradeType,
+                "transAmount": targetVolumeAmount
             };
 
             try {
-                const apiResponse = await fetch(completeRequestUri, {
+                const networkFetchRequest = await fetch(aggregatedQueryUri, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payloadData)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(binanceQueryPayload)
                 });
 
-                if (!apiResponse.ok) {
-                    throw new Error(`Gateway Error encountered (HTTP status: ${apiResponse.status})`);
+                if (!networkFetchRequest.ok) {
+                    throw new Error(`Data synchronization failed with network status: ${networkFetchRequest.status}`);
                 }
 
-                const responseDataset = await apiResponse.json();
+                const payloadDataResult = await networkFetchRequest.json();
 
-                if (!responseDataset.success || !responseDataset.data || responseDataset.data.length === 0) {
-                    throw new Error("No validation offers parsed or proxy data limit restrictions active.");
+                if (!payloadDataResult.success || !payloadDataResult.data || payloadDataResult.data.length === 0) {
+                    throw new Error("No live advertisements parsed from proxy network interface layers.");
                 }
 
-                clearError();
-                processIncomingP2PData(responseDataset.data, chosenAmount, chosenTradeType);
+                clearDataPipelineErrors();
+                processIncomingMarketAdvertisements(payloadDataResult.data, targetVolumeAmount);
 
-            } catch (runtimeError) {
-                console.error("Pipeline Sync Error: ", runtimeError);
-                triggerErrorDisplay(runtimeError.message || "Failed execution loop processing via proxy pipeline.");
+            } catch (runtimePipelineException) {
+                console.error("Execution Exception Framework logged: ", runtimePipelineException);
+                triggerVisualErrorBanner(runtimePipelineException.message || "Unidentified network state configuration anomaly.");
                 
-                // Adaptive Fallback Mechanism: Auto transition proxy configurations if failure triggers
-                if (targetProxyConfig === 'corsproxy') {
+                // Smart Fallback Router Switcher logic
+                if (operationalProxyKey === 'corsproxy') {
                     elProxySystem.value = 'allorigins';
-                    triggerErrorDisplay("CorsProxy.io issue resolved via AllOrigins auto-switchover layer. Re-evaluating engine...");
-                    setTimeout(executeDataSyncPipeline, 1200);
+                    triggerVisualErrorBanner("CORS Restriction auto-transitioned engine state onto AllOrigins core fallback path routing.");
+                    setTimeout(executeDataSyncPipeline, 1000);
+                } else {
+                    renderEmptyErrorTableState(runtimePipelineException.message);
                 }
             } finally {
-                engineExecutionLock = false;
-                toggleLoadingState(false);
+                activeProcessMutexLock = false;
+                toggleTableLoadingIndicator(false);
             }
         }
 
-        // Process Extracted JSON Order Data arrays
-        function processIncomingP2PData(orderRows, targetVolume, currentTradeDirection) {
-            const numericalPrices = orderRows
-                .map(orderItem => parseFloat(orderItem.adv.price))
-                .filter(parsedPriceValue => !isNaN(parsedPriceValue));
+        // Parse and calculate metrics stream from active P2P array records
+        function processIncomingMarketAdvertisements(adDatasetRows, volumeFilterContext) {
+            const analyticalPricesArray = adDatasetRows
+                .map(rowObj => parseFloat(rowObj.adv.price))
+                .filter(parsedFloatVal => !isNaN(parsedFloatVal));
 
-            if (numericalPrices.length === 0) {
-                throw new Error("Order configuration pricing parse constraints failed.");
-            }
+            const computedFloorLowPrice = Math.min(...analyticalPricesArray);
+            const computedCeilingHighPrice = Math.max(...analyticalPricesArray);
+            const absoluteDeltaSpread = computedCeilingHighPrice - computedFloorLowPrice;
 
-            // Calculation Matrix Engine
-            const determinedLowestPrice = Math.min(...numericalPrices);
-            const determinedHighestPrice = Math.max(...numericalPrices);
-            const absoluteCalculatedSpread = determinedHighestPrice - determinedLowestPrice;
-            const calculatedPercentageSpread = (absoluteCalculatedSpread / determinedLowestPrice) * 100;
+            const instanceClockTimestamp = new Date();
+            const localFormattedTimeStr = instanceClockTimestamp.toLocaleTimeString();
 
-            const calendarTimestamp = new Date();
-            const formattingTimeString = calendarTimestamp.toLocaleTimeString();
+            // Handle UI KPI Card structural visual updates
+            elAnalyticsLow.innerText = `${computedFloorLowPrice.toFixed(2)} NPR`;
+            elAnalyticsHigh.innerText = `${computedCeilingHighPrice.toFixed(2)} NPR`;
+            elAnalyticsSpread.innerText = `${absoluteDeltaSpread.toFixed(2)} NPR`;
+            elAnalyticsTimestamp.innerText = localFormattedTimeStr;
 
-            // Dom Updates Execution
-            elLowPrice.innerText = determinedLowestPrice.toFixed(2);
-            elHighPrice.innerText = determinedHighestPrice.toFixed(2);
-            elSpread.innerText = absoluteCalculatedSpread.toFixed(2);
-            elSpreadPercent.innerText = `Spread Delta: ${calculatedPercentageSpread.toFixed(2)}%`;
-            elLastUpdated.innerText = formattingTimeString;
-            
-            runningSessionTickCount++;
-            elSessionCount.innerText = `Session updates recorded: ${runningSessionTickCount}`;
+            // Commit structured timeline traces into LocalStorage history database
+            cacheMetricHistoryToMemory(instanceClockTimestamp, computedFloorLowPrice, computedCeilingHighPrice, volumeFilterContext);
 
-            // Handle Daily Persistent Storage Interface
-            persistDataToDailyMemory(calendarTimestamp, determinedLowestPrice, determinedHighestPrice, targetVolume, currentTradeDirection);
-
-            // Handle Local Variable Buffer Arrays for UI Chart Window Constraints
-            sessionDataPoints.push({
-                timeLabel: formattingTimeString,
-                lowValue: determinedLowestPrice,
-                highValue: determinedHighestPrice
+            // Update Chart.js layout viewport datasets
+            sessionHistoricalBuffer.push({
+                tickTime: localFormattedTimeStr,
+                lowMark: computedFloorLowPrice,
+                highMark: computedCeilingHighPrice
             });
 
-            // Enforce window constraints of keeping last 20 - 50 datasets
-            if (sessionDataPoints.length > 40) {
-                sessionDataPoints.shift();
+            if (sessionHistoricalBuffer.length > 40) {
+                sessionHistoricalBuffer.shift();
             }
 
-            // Bind update trends back onto Chart instance
-            chartInstance.data.labels = sessionDataPoints.map(item => item.timeLabel);
-            chartInstance.data.datasets[0].data = sessionDataPoints.map(item => item.lowValue);
-            chartInstance.data.datasets[1].data = sessionDataPoints.map(item => item.highValue);
-            chartInstance.update('none'); // Update using performant context frame rendering paths
+            globalChartInstance.data.labels = sessionHistoricalBuffer.map(record => record.tickTime);
+            globalChartInstance.data.datasets[0].data = sessionHistoricalBuffer.map(record => record.lowMark);
+            globalChartInstance.data.datasets[1].data = sessionHistoricalBuffer.map(record => record.highMark);
+            globalChartInstance.update('none');
 
-            // Append Record Row inside UI View Port Logs
-            injectAuditRow(formattingTimeString, targetVolume, determinedLowestPrice, determinedHighestPrice, currentTradeDirection);
+            // Render exact replica layout table representation from dataset rows
+            renderReplicaOrderBookTable(adDatasetRows);
         }
 
-        // Local Storage Daily Data Memory Persistence Layer
-        function persistDataToDailyMemory(timestamp, low, high, volume, tradeDirection) {
-            const memoryDataStructure = {
-                time: timestamp.toISOString(),
-                low: low,
-                high: high,
-                amount: volume,
-                direction: tradeDirection
+        // Exact Visual Match Representation of Binance P2P UI Rows
+        function renderReplicaOrderBookTable(advertisements) {
+            elTableBody.innerHTML = '';
+
+            advertisements.forEach(item => {
+                const advertiserName = item.advertiser.nickName;
+                const orderCountMonth = item.advertiser.monthOrderCount;
+                const finishRateMonth = (item.advertiser.monthFinishRate * 100).toFixed(2);
+                
+                const adRatePrice = parseFloat(item.adv.price).toFixed(2);
+                const cryptoAvailablePool = parseFloat(item.adv.surplusAmount).toFixed(2);
+                const minOrderLimit = parseFloat(item.adv.minSingleTransAmount).toLocaleString();
+                const maxOrderLimit = parseFloat(item.adv.maxSingleTransAmount).toLocaleString();
+
+                // Compute exact button tag configuration labels matching trade intent paths
+                const tradeActionText = currentTradeType === 'BUY' ? 'Buy USDT' : 'Sell USDT';
+                const buttonContextClass = currentTradeType === 'BUY' ? 'trade-action-btn buy-bg' : 'trade-action-btn sell-bg';
+
+                // Map Payment channel properties to custom localized context badges 
+                const paymentMethodsList = item.adv.tradeMethods || [];
+                let structuredPaymentsHtml = '';
+
+                paymentMethodsList.forEach(method => {
+                    const normalizedMethodName = method.tradeMethodName.toLowerCase();
+                    let paymentClassModifier = '';
+
+                    if (normalizedMethodName.includes('esewa')) {
+                        paymentClassModifier = 'esewa';
+                    } else if (normalizedMethodName.includes('khalti')) {
+                        paymentClassModifier = 'khalti';
+                    } else if (normalizedMethodName.includes('bank') || normalizedMethodName.includes('transfer')) {
+                        paymentClassModifier = 'bank';
+                    } else if (normalizedMethodName.includes('ime')) {
+                        paymentClassModifier = 'imepay';
+                    }
+
+                    structuredPaymentsHtml += `<span class="payment-pill ${paymentClassModifier}">${method.tradeMethodName}</span>`;
+                });
+
+                if (paymentMethodsList.length === 0) {
+                    structuredPaymentsHtml = `<span class="payment-pill">Other Method</span>`;
+                }
+
+                const tableRowNode = document.createElement('tr');
+                tableRowNode.innerHTML = `
+                    <td>
+                        <div class="merchant-profile">
+                            <div class="merchant-name-container">
+                                <a href="#" class="merchant-name" onclick="return false;">${advertiserName}</a>
+                                <span class="merchant-badge-logo">Pro</span>
+                            </div>
+                            <div class="merchant-stats">
+                                <span>${orderCountMonth} orders</span> | <span>${finishRateMonth}% completion</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="price-display">
+                            ${adRatePrice}<span class="price-fiat-label">NPR</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="limits-display">
+                            <div class="limit-row">
+                                <span class="limit-label">Available</span>
+                                <span class="limit-value" style="color: var(--binance-text-secondary);">${cryptoAvailablePool} USDT</span>
+                            </div>
+                            <div class="limit-row">
+                                <span class="limit-label">Limit</span>
+                                <span class="limit-value">${minOrderLimit} NPR - ${maxOrderLimit} NPR</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="payments-cell">
+                            ${structuredPaymentsHtml}
+                        </div>
+                    </td>
+                    <td class="action-cell">
+                        <button class="${buttonContextClass}">${tradeActionText}</button>
+                    </td>
+                `;
+
+                elTableBody.appendChild(tableRowNode);
+            });
+        }
+
+        // Cache Management Storage Logic
+        function cacheMetricHistoryToMemory(timeInstance, minVal, maxVal, activeVol) {
+            const analyticsSchemaNode = {
+                time: timeInstance.toISOString(),
+                low: minVal,
+                high: maxVal,
+                amount: activeVol,
+                direction: currentTradeType
             };
 
             try {
-                let existingHistoricalMemory = JSON.parse(localStorage.getItem('binance_p2p_npr_analytics')) || [];
-                existingHistoricalMemory.push(memoryDataStructure);
-                
-                // Limit maximum internal history arrays to avoid data block degradation (max 2000 points saved)
-                if (existingHistoricalMemory.length > 2000) {
-                    existingHistoricalMemory.shift();
-                }
-                
-                localStorage.setItem('binance_p2p_npr_analytics', JSON.stringify(existingHistoricalMemory));
-            } catch (storageError) {
-                console.warn("Storage limits or settings blocked writing log traces: ", storageError);
+                let cacheStoreArray = JSON.parse(localStorage.getItem('binance_p2p_nepal_memory')) || [];
+                cacheStoreArray.push(analyticsSchemaNode);
+                if (cacheStoreArray.length > 1000) cacheStoreArray.shift();
+                localStorage.setItem('binance_p2p_nepal_memory', JSON.stringify(cacheStoreArray));
+            } catch (err) {
+                console.warn("Storage write operation limit exceptions bypassed: ", err);
             }
         }
 
-        // Injects Data Row entries to Audit log visual board tables
-        function injectAuditRow(time, volume, low, high, direction) {
-            const tableRowElement = document.createElement('tr');
-            tableRowElement.style.animation = "fadeIn 0.2s ease";
-            
-            const badgeStyle = direction === 'BUY' ? 'color: var(--green); font-weight: bold;' : 'color: var(--red); font-weight: bold;';
-            const mappedVolumeDisplay = `${parseInt(volume).toLocaleString()} NPR <span style="${badgeStyle}">(${direction})</span>`;
-
-            tableRowElement.innerHTML = `
-                <td style="color: var(--text-secondary);">${time}</td>
-                <td>${mappedVolumeDisplay}</td>
-                <td style="color: var(--green);">${low.toFixed(2)}</td>
-                <td style="color: var(--red);">${high.toFixed(2)}</td>
-            `;
-
-            elTicksTableBody.insertBefore(tableRowElement, elTicksTableBody.firstChild);
-
-            // Keep table interface view row counts clean
-            if (elTicksTableBody.children.length > 50) {
-                elTicksTableBody.removeChild(elTicksTableBody.lastChild);
+        // State Machine Interface Status Controllers
+        function toggleTableLoadingIndicator(showLoader) {
+            if (showLoader && elTableBody.innerHTML === '') {
+                elTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5">
+                            <div class="state-container">
+                                <div class="loader-spinner"></div>
+                                <p>Querying dynamic exchange orderbook array matrices...</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }
         }
 
-        // Master UI Loading State Controllers
-        function toggleLoadingState(isLoadingActive) {
-            if (isLoadingActive) {
-                elLoadingIndicator.style.display = 'block';
-                elBtnText.innerText = "Synchronizing...";
-                elManualRefreshBtn.disabled = true;
-                elManualRefreshBtn.style.opacity = '0.7';
-            } else {
-                elLoadingIndicator.style.display = 'none';
-                elBtnText.innerText = "Sync Engine";
-                elManualRefreshBtn.disabled = false;
-                elManualRefreshBtn.style.opacity = '1';
-            }
-        }
-
-        // Application Error Banner Dispatcher Interface
-        function triggerErrorDisplay(errorMessageText) {
-            elAlertMessage.innerText = errorMessageText;
+        function triggerVisualErrorBanner(msg) {
+            elAlertMessage.innerText = msg;
             elAlertBanner.style.display = 'flex';
         }
 
-        function clearError() {
+        function clearDataPipelineErrors() {
             elAlertBanner.style.display = 'none';
         }
 
-        // System Wipe Local Storage Triggers
-        function clearSystemData() {
-            if (confirm("Execute configuration wipe on localized historical tracking dataset logs? This preserves session charts.")) {
-                localStorage.removeItem('binance_p2p_npr_analytics');
-                elTicksTableBody.innerHTML = '';
-                alert("Data clearance execution finalized.");
+        function renderEmptyErrorTableState(reasonStr) {
+            elTableBody.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        <div class="state-container" style="color: var(--binance-red);">
+                            <p style="font-weight:600; margin-bottom:8px;">Data Engine Pipeline Offline</p>
+                            <p style="font-size:12px; opacity:0.7;">Reason context: ${reasonStr || 'Proxy connection timeout exception thresholds hit.'}</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function wipeLocalCache() {
+            if (confirm("Execute configuration clearance command on active localized history logging buffers?")) {
+                localStorage.removeItem('binance_p2p_nepal_memory');
+                alert("Cache records purged. Active display frames intact.");
             }
         }
     </script>
