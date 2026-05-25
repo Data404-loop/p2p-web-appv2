@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>P2P Analyzer</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+    .box {
+      margin-top: 50px;
+      padding: 20px;
+      background: #1e293b;
+      display: inline-block;
+      border-radius: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    .price {
+      font-size: 22px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📊 Binance P2P Analyzer</h1>
+
+<div class="box">
+  <div class="price" id="low">Low: Loading...</div>
+  <div class="price" id="high">High: Loading...</div>
+  <button onclick="fetchData()">Refresh</button>
+</div>
+
+<script>
+async function fetchData() {
+  const res = await fetch("https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      asset: "USDT",
+      fiat: "NPR",
+      tradeType: "BUY",
+      page: 1,
+      rows: 10
+    })
+  });
+
+  const data = await res.json();
+
+  let prices = data.data.map(x => parseFloat(x.adv.price));
+
+  let low = Math.min(...prices);
+  let high = Math.max(...prices);
+
+  document.getElementById("low").innerText = "Low: " + low;
+  document.getElementById("high").innerText = "High: " + high;
+}
+
+// auto load
+fetchData();
+setInterval(fetchData, 60000); // every 1 min
+</script>
+
+</body>
+</html>
