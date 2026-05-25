@@ -3,384 +3,906 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binance P2P Clone - Fixed Data & Amount Ranges</title>
+    <title>Binance P2P Live Analytics Dashboard (USDT/NPR)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #12161a;
-            --card-bg: #1e2329;
-            --text-main: #eaecef;
-            --text-muted: #707a8a;
-            --binance-yellow: #fcd535;
+            --bg-main: #0b0e11;
+            --bg-card: #181a20;
+            --bg-input: #2b3139;
+            --bg-input-hover: #353c44;
+            --text-primary: #eaecef;
+            --text-secondary: #848e9c;
+            --accent: #f0b90b;
+            --accent-hover: #ffe066;
             --green: #0ecb81;
             --red: #f6465d;
-            --border-color: #2b3139;
-            --radio-bg: #2b3139;
+            --border: #2b3139;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font);
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            padding: 24px;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 1300px;
-            margin: 20px auto;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-
-        .binance-logo { color: var(--binance-yellow); }
-
-        /* Grid Layout */
-        .p2p-wrapper {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 24px;
-            align-items: start;
-        }
-
-        /* Left Side Sidebar Styles */
-        .sidebar {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        .sidebar-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            color: #fff;
-        }
-
-        /* Radio Range Container */
-        .range-container {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            max-height: 500px;
-            overflow-y: auto;
-            padding-right: 5px;
+            gap: 24px;
         }
 
-        /* Custom Scrollbar for sidebar */
-        .range-container::-webkit-scrollbar {
-            width: 5px;
-        }
-        .range-container::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
-        .range-item {
+        .brand-section {
             display: flex;
             align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            padding: 8px 10px;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            color: var(--accent);
+            font-size: 24px;
+            font-weight: bold;
+            background: rgba(240, 185, 11, 0.1);
+            padding: 6px 12px;
             border-radius: 6px;
-            transition: background 0.2s;
+            border: 1px solid rgba(240, 185, 11, 0.2);
         }
 
-        .range-item:hover {
-            background-color: var(--radio-bg);
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
         }
 
-        .range-item input[type="radio"] {
-            accent-color: var(--binance-yellow);
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .range-item label {
-            cursor: pointer;
+        .badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .badge-live {
+            background-color: rgba(14, 203, 129, 0.15);
+            color: var(--green);
+            border: 1px solid rgba(14, 203, 129, 0.3);
+        }
+
+        .badge-live.paused {
+            background-color: rgba(132, 142, 156, 0.15);
+            color: var(--text-secondary);
+            border: 1px solid rgba(132, 142, 156, 0.3);
+        }
+
+        /* Controls Panel */
+        .controls-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            align-items: flex-end;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, input {
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
             font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s ease;
             width: 100%;
         }
 
-        /* Right Side Content Panel */
-        .main-content {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        select:hover, input:hover {
+            border-color: var(--text-secondary);
+            background-color: var(--bg-input-hover);
         }
 
-        /* Buy/Sell Tabs */
-        .tabs {
+        select:focus, input:focus {
+            border-color: var(--accent);
+        }
+
+        .action-buttons {
             display: flex;
-            gap: 15px;
-            border-bottom: 1px solid var(--border-color);
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-input-hover);
+            border-color: var(--text-secondary);
+        }
+
+        /* Toggle Button Container */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            user-select: none;
+            gap: 12px;
+            justify-content: space-between;
+        }
+
+        .toggle-container input {
+            display: none;
+        }
+
+        .switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            background-color: #47525e;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: white;
+            top: 3px;
+            left: 3px;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-container input:checked + .switch {
+            background-color: var(--green);
+        }
+
+        .toggle-container input:checked + .switch::after {
+            left: 21px;
+        }
+
+        /* Analytics Panel Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .card-value.green { color: var(--green); }
+        .card-value.red { color: var(--red); }
+        .card-value.gold { color: var(--accent); }
+
+        .card-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        /* Main Workspace: Chart & Sidebar */
+        .dashboard-workspace {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
 
-        .tab-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 16px;
-            font-weight: 600;
-            padding: 10px 5px;
-            cursor: pointer;
+        .chart-container {
+            position: relative;
+            flex-grow: 1;
+            width: 100%;
+            height: 100%;
         }
 
-        .tab-btn.active-buy { color: var(--green); border-bottom: 3px solid var(--green); }
-        .tab-btn.active-sell { color: var(--red); border-bottom: 3px solid var(--red); }
+        /* History Table View */
+        .history-card {
+            display: flex;
+            flex-direction: column;
+            max-height: 520px;
+        }
 
-        /* Table */
+        .table-wrapper {
+            overflow-y: auto;
+            margin-top: 12px;
+            flex-grow: 1;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
         }
 
         th {
-            color: var(--text-muted);
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-card);
+            color: var(--text-secondary);
             font-weight: 500;
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
-            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
         }
 
         td {
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-            vertical-align: middle;
+            padding: 12px 8px;
+            border-bottom: 1px solid #22262d;
+            font-weight: 500;
         }
 
-        .merchant-info { display: flex; flex-direction: column; }
-        .m-name { font-weight: 600; color: #fff; }
-        .m-orders { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
 
-        .price-container { font-size: 20px; font-weight: bold; }
-        .fiat-unit { font-size: 13px; color: var(--text-muted); margin-left: 4px; }
+        /* Global Notification banner */
+        .alert-banner {
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            animation: fadeIn 0.3s ease;
+        }
 
-        .limit-container div { font-size: 13px; margin-bottom: 2px; }
+        .alert-danger {
+            background-color: rgba(246, 70, 93, 0.15);
+            color: var(--red);
+            border: 1px solid rgba(246, 70, 93, 0.3);
+        }
 
-        .pm-badge {
+        /* Loading Indicator */
+        .loader {
+            width: 18px;
+            height: 18px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            border-top-color: currentColor;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .btn .loader {
             display: inline-block;
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-right: 4px;
         }
-        .esewa { background-color: rgba(96, 187, 70, 0.15); color: #60bb46; }
-        .khalti { background-color: rgba(92, 38, 142, 0.15); color: #8e44ad; }
-        .bank { background-color: rgba(52, 152, 219, 0.15); color: #3498db; }
 
-        .action-btn {
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 13px;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-        .btn-buy-grid { background-color: var(--green); color: white; }
-        .btn-sell-grid { background-color: var(--red); color: white; }
-        
-        .no-data {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 40px;
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2><span class="binance-logo">Binance</span> P2P Trades (NPR)</h2>
-    
-    <div class="p2p-wrapper">
-        <aside class="sidebar">
-            <div class="sidebar-title">Amount Selection (NPR)</div>
-            <div class="range-container">
-                <div class="range-item">
-                    <input type="radio" id="r-all" name="amtRange" value="all" checked onclick="applyFilter(0)">
-                    <label for="r-all">All Amounts</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-100" name="amtRange" value="100" onclick="applyFilter(100)">
-                    <label for="r-100">≥ रु 100</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-200" name="amtRange" value="200" onclick="applyFilter(200)">
-                    <label for="r-200">≥ रु 200</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-300" name="amtRange" value="300" onclick="applyFilter(300)">
-                    <label for="r-300">≥ रु 300</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-500" name="amtRange" value="500" onclick="applyFilter(500)">
-                    <label for="r-500">≥ रु 500</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-1k" name="amtRange" value="1000" onclick="applyFilter(1000)">
-                    <label for="r-1k">≥ रु 1,000 (1k)</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-1.5k" name="amtRange" value="1500" onclick="applyFilter(1500)">
-                    <label for="r-1.5k">≥ रु 1,500 (1.5k)</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-2k" name="amtRange" value="2000" onclick="applyFilter(2000)">
-                    <label for="r-2k">≥ रु 2,000 (2k)</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-3k" name="amtRange" value="3000" onclick="applyFilter(3000)">
-                    <label for="r-3k">≥ रु 3,000 (3k)</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-5k" name="amtRange" value="5000" onclick="applyFilter(5000)">
-                    <label for="r-5k">≥ रु 5,000 (5k)</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-10k" name="amtRange" value="10000" onclick="applyFilter(10000)">
-                    <label for="r-10k">≥ रु 10,000 (10k)</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-15k" name="amtRange" value="15000" onclick="applyFilter(15000)">
-                    <label for="r-15k">≥ रु 15,000 (15k)</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-20k" name="amtRange" value="20000" onclick="applyFilter(20000)">
-                    <label for="r-20k">≥ रु 20,000 (20k)</label>
-                </div>
-                <div class="range-item">
-                    <input type="radio" id="r-25k" name="amtRange" value="25000" onclick="applyFilter(25000)">
-                    <label for="r-25k">≥ रु 25,000 (25k)</label>
+    <div class="container">
+        <header>
+            <div class="brand-section">
+                <div class="logo-icon">⇄</div>
+                <div>
+                    <h1>Binance P2P Live Analytics</h1>
+                    <p style="font-size: 12px; color: var(--text-secondary);">USDT / NPR Nepal Fiat Market Context</p>
                 </div>
             </div>
-        </aside>
+            <div class="status-container">
+                <div id="liveBadge" class="badge badge-live">● Live</div>
+                <div id="loadingIndicator" class="loader" style="display: block; color: var(--accent);"></div>
+            </div>
+        </header>
 
-        <main class="main-content">
-            <div class="tabs">
-                <button class="tab-btn active-buy" id="buyTab" onclick="switchTab('BUY')">Buy</button>
-                <button class="tab-btn" id="sellTab" onclick="switchTab('SELL')">Sell</button>
+        <div id="alertBanner" class="alert-banner alert-danger">
+            <span id="alertMessage">Error messages show here.</span>
+            <button class="btn-secondary" style="padding: 4px 10px; border-radius: 4px; font-size: 11px;" onclick="clearError()">Dismiss</button>
+        </div>
+
+        <section class="controls-card">
+            <div class="control-group">
+                <label for="amountFilter">Transaction Volume Filter</label>
+                <select id="amountFilter">
+                    <option value="100">100 NPR</option>
+                    <option value="200">200 NPR</option>
+                    <option value="300">300 NPR</option>
+                    <option value="400">400 NPR</option>
+                    <option value="500">500 NPR</option>
+                    <option value="1000" selected>1,000 NPR</option>
+                    <option value="1500">1,500 NPR</option>
+                    <option value="2000">2,000 NPR</option>
+                    <option value="3000">3,000 NPR</option>
+                    <option value="4000">4,000 NPR</option>
+                    <option value="5000">5,000 NPR</option>
+                    <option value="10000">10,000 NPR</option>
+                    <option value="15000">15,000 NPR</option>
+                    <option value="20000">20,000 NPR</option>
+                    <option value="25000">25,000 NPR</option>
+                    <option value="30000">30,000 NPR</option>
+                    <option value="40000">40,000 NPR</option>
+                    <option value="50000">50,000 NPR</option>
+                </select>
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Advertiser</th>
-                        <th>Price</th>
-                        <th>Available / Limit</th>
-                        <th>Payment</th>
-                        <th>Trade</th>
-                    </tr>
-                </thead>
-                <tbody id="p2p-data-rows">
-                    </tbody>
-            </table>
-        </main>
+            <div class="control-group">
+                <label for="proxySystem">CORS Proxy Architecture</label>
+                <select id="proxySystem">
+                    <option value="corsproxy">CorsProxy.io (Recommended)</option>
+                    <option value="allorigins">AllOrigins.win (Alternative)</option>
+                    <option value="custom">Custom Configuration Gateway</option>
+                </select>
+            </div>
+
+            <div class="control-group" id="customProxyWrapper" style="display: none;">
+                <label for="customProxyInput">Target Gateway Address</label>
+                <input type="text" id="customProxyInput" value="https://api.allorigins.win/raw?url=" placeholder="https://proxy.domain/path?url=">
+            </div>
+
+            <div class="control-group">
+                <label class="toggle-container">
+                    <span>Engine Auto-Refresh</span>
+                    <input type="checkbox" id="autoRefreshToggle" checked>
+                    <div class="switch"></div>
+                </label>
+            </div>
+
+            <div class="action-buttons">
+                <button id="manualRefreshBtn" class="btn btn-primary">
+                    <span id="btnText">Sync Engine</span>
+                </button>
+                <button class="btn btn-secondary" onclick="clearSystemData()" style="max-width: 110px;" title="Wipe stored history logs">Clear Log</button>
+            </div>
+        </section>
+
+        <section class="analytics-grid">
+            <div class="card">
+                <div class="card-title">Lowest Target Price (Buy Side)</div>
+                <div class="card-value green" id="lowPriceValue">—</div>
+                <div class="card-meta">Optimal purchase rate found</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Highest Target Price (Sell Side)</div>
+                <div class="card-value red" id="highPriceValue">—</div>
+                <div class="card-meta">Maximum return liquidation rate</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Market Orderbook Spread</div>
+                <div class="card-value gold" id="spreadValue">—</div>
+                <div class="card-meta" id="spreadPercent">Discrepancy valuation metrics</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Engine Pulse Synchronization</div>
+                <div class="card-value" id="lastUpdatedValue" style="font-size: 24px; padding-top: 8px;">—</div>
+                <div class="card-meta" id="sessionCount">Session updates recorded: 0</div>
+            </div>
+        </section>
+
+        <section class="dashboard-workspace">
+            <div class="card chart-card">
+                <div class="chart-header">
+                    <h3 style="font-size: 16px; font-weight: 600;">Active Session Price Trend Matrix</h3>
+                    <span style="font-size: 12px; color: var(--text-secondary);">Real-time stream (Window: 20-50 ticks)</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="liveAnalyticsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card history-card">
+                <h3 style="font-size: 16px; font-weight: 600;">Real-Time Feed Audit Logs</h3>
+                <div class="table-wrapper">
+                    <table id="ticksTable">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Target Vol</th>
+                                <th>Low (NPR)</th>
+                                <th>High (NPR)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticksTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </div>
-</div>
 
-<script>
-    // FIXED & DIVERSE DATA (सानो र ठुलो सबै रेन्जको लागि सुहाउदो लिमिट सेट गरिएको छ)
-    const masterData = {
-        BUY: [
-            { name: "Crypto_Gorkha ✅", orders: "1,240 orders | 99.10%", price: "136.45", available: "50.00 USDT", min: 100, max: 5000, payments: ["esewa"] },
-            { name: "Chitwan_Crypto", orders: "310 orders | 94.20%", price: "136.50", available: "120.00 USDT", min: 300, max: 15000, payments: ["khalti", "esewa"] },
-            { name: "Kathmandu_Traders", orders: "420 orders | 96.50%", price: "136.60", available: "1,500.00 USDT", min: 1500, max: 80000, payments: ["esewa", "bank"] },
-            { name: "Apex_Crypto_NP ✅", orders: "890 orders | 100.00%", price: "136.85", available: "320.15 USDT", min: 5000, max: 43000, payments: ["bank"] },
-            { name: "Himalayan_P2P", orders: "55 orders | 92.00%", price: "137.10", available: "2,500.00 USDT", min: 20000, max: 350000, payments: ["bank"] }
-        ],
-        SELL: [
-            { name: "NP_Whale_Trader ✅", orders: "2,100 orders | 98.40%", price: "135.20", available: "2,300.00 USDT", min: 15000, max: 300000, payments: ["esewa", "bank"] },
-            { name: "Pokhara_Exchange", orders: "310 orders | 95.00%", price: "135.05", available: "400.00 USDT", min: 2000, max: 54000, payments: ["khalti"] },
-            { name: "Bhairahawa_Crypto", orders: "650 orders | 97.20%", price: "134.90", available: "80.00 USDT", min: 100, max: 10000, payments: ["esewa"] } // Fixed limit bug
-        ]
-    };
+    <script>
+        // Execution State Variables
+        let chartInstance = null;
+        let sessionDataPoints = [];
+        let dataRefreshIntervalId = null;
+        let engineExecutionLock = false;
+        let runningSessionTickCount = 0;
 
-    let currentMode = 'BUY'; 
-    let currentSelectedAmount = 0;
+        // Dom Element Selectors
+        const elLowPrice = document.getElementById('lowPriceValue');
+        const elHighPrice = document.getElementById('highPriceValue');
+        const elSpread = document.getElementById('spreadValue');
+        const elSpreadPercent = document.getElementById('spreadPercent');
+        const elLastUpdated = document.getElementById('lastUpdatedValue');
+        const elSessionCount = document.getElementById('sessionCount');
+        const elAmountFilter = document.getElementById('amountFilter');
+        const elProxySystem = document.getElementById('proxySystem');
+        const elCustomProxyWrapper = document.getElementById('customProxyWrapper');
+        const elCustomProxyInput = document.getElementById('customProxyInput');
+        const elAutoRefreshToggle = document.getElementById('autoRefreshToggle');
+        const elManualRefreshBtn = document.getElementById('manualRefreshBtn');
+        const elBtnText = document.getElementById('btnText');
+        const elLiveBadge = document.getElementById('liveBadge');
+        const elLoadingIndicator = document.getElementById('loadingIndicator');
+        const elAlertBanner = document.getElementById('alertBanner');
+        const elAlertMessage = document.getElementById('alertMessage');
+        const elTicksTableBody = document.getElementById('ticksTableBody');
 
-    function renderData(mode, filterAmount = 0) {
-        const tbody = document.getElementById('p2p-data-rows');
-        tbody.innerHTML = '';
-
-        let dataRows = masterData[mode];
-        
-        // Filter logic: Check if selected amount falls within the merchant's min and max limit
-        if (filterAmount > 0) {
-            dataRows = dataRows.filter(row => filterAmount >= row.min && filterAmount <= row.max);
-        }
-
-        if(dataRows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="no-data">यो Amount Range मा कुनै पनि विज्ञापन उपलब्ध छैन।</td></tr>`;
-            return;
-        }
-
-        dataRows.forEach(row => {
-            let paymentBadges = row.payments.map(p => `<span class="pm-badge ${p}">${p.toUpperCase()}</span>`).join('');
-            let btnClass = mode === 'BUY' ? 'btn-buy-grid' : 'btn-sell-grid';
-            let btnText = mode === 'BUY' ? 'Buy USDT' : 'Sell USDT';
-
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>
-                    <div class="merchant-info">
-                        <span class="m-name">${row.name}</span>
-                        <span class="m-orders">${row.orders}</span>
-                    </div>
-                </td>
-                <td>
-                    <div class="price-container">
-                        ${row.price}<span class="fiat-unit">NPR</span>
-                    </div>
-                </td>
-                <td>
-                    <div class="limit-container">
-                        <div><span style="color:var(--text-muted)">Available:</span> ${row.available}</div>
-                        <div><span style="color:var(--text-muted)">Limit:</span> रु ${row.min.toLocaleString()} - रु ${row.max.toLocaleString()}</div>
-                    </div>
-                </td>
-                <td>${paymentBadges}</td>
-                <td>
-                    <button class="action-btn ${btnClass}">${btnText}</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
+        // Application Startup Configurations
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeChart();
+            bindEventStructures();
+            executeDataSyncPipeline();
+            configureEngineScheduling();
         });
-    }
 
-    function switchTab(mode) {
-        currentMode = mode;
-        const buyTab = document.getElementById('buyTab');
-        const sellTab = document.getElementById('sellTab');
-
-        if(mode === 'BUY') {
-            buyTab.className = 'tab-btn active-buy';
-            sellTab.className = 'tab-btn';
-        } else {
-            buyTab.className = 'tab-btn';
-            sellTab.className = 'tab-btn active-sell';
+        // Initialize Chart.js Component with Dark Theme Settings
+        function initializeChart() {
+            const ctx = document.getElementById('liveAnalyticsChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Lowest Price (Buy Opportunity)',
+                            borderColor: '#0ecb81',
+                            backgroundColor: 'rgba(14, 203, 129, 0.06)',
+                            borderWidth: 2,
+                            data: [],
+                            tension: 0.25,
+                            fill: true,
+                            pointRadius: 1.5,
+                            pointHoverRadius: 5,
+                            pointHitRadius: 10
+                        },
+                        {
+                            label: 'Highest Price (Sell Opportunity)',
+                            borderColor: '#f6465d',
+                            backgroundColor: 'rgba(246, 70, 93, 0.06)',
+                            borderWidth: 2,
+                            data: [],
+                            tension: 0.25,
+                            fill: true,
+                            pointRadius: 1.5,
+                            pointHoverRadius: 5,
+                            pointHitRadius: 10
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#eaecef',
+                                font: { weight: 500, size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1e2329',
+                            titleColor: '#eaecef',
+                            bodyColor: '#eaecef',
+                            borderColor: '#2b3139',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: true,
+                            boxPadding: 6
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#21262c', drawTicks: false },
+                            ticks: { color: '#848e9c', font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }
+                        },
+                        y: {
+                            grid: { color: '#21262c', drawTicks: false },
+                            ticks: { color: '#848e9c', font: { size: 11 } }
+                        }
+                    }
+                }
+            });
         }
-        renderData(currentMode, currentSelectedAmount); 
-    }
 
-    // Radio click handler
-    function applyFilter(amount) {
-        currentSelectedAmount = amount;
-        renderData(currentMode, amount);
-    }
+        // Binding Structural DOM Events
+        function bindEventStructures() {
+            elAmountFilter.addEventListener('change', () => {
+                sessionDataPoints = []; // reset active tracking path on volume parameter context flip
+                executeDataSyncPipeline();
+            });
 
-    // Initial default load
-    renderData('BUY');
-</script>
+            elProxySystem.addEventListener('change', (e) => {
+                if (e.target.value === 'custom') {
+                    elCustomProxyWrapper.style.display = 'block';
+                } else {
+                    elCustomProxyWrapper.style.display = 'none';
+                }
+                executeDataSyncPipeline();
+            });
 
+            elAutoRefreshToggle.addEventListener('change', configureEngineScheduling);
+            elManualRefreshBtn.addEventListener('click', executeDataSyncPipeline);
+        }
+
+        // Configure Engine Polling Interval Strategy
+        function configureEngineScheduling() {
+            const isAutoEnabled = elAutoRefreshToggle.checked;
+            
+            if (isAutoEnabled) {
+                if (!dataRefreshIntervalId) {
+                    dataRefreshIntervalId = setInterval(executeDataSyncPipeline, 5000);
+                }
+                elLiveBadge.classList.remove('paused');
+                elLiveBadge.innerText = '● Live';
+            } else {
+                if (dataRefreshIntervalId) {
+                    clearInterval(dataRefreshIntervalId);
+                    dataRefreshIntervalId = null;
+                }
+                elLiveBadge.classList.add('paused');
+                elLiveBadge.innerText = '● Paused';
+            }
+        }
+
+        // Main Core Data Pipeline Orchestrator
+        async function executeDataSyncPipeline() {
+            if (engineExecutionLock) return;
+            engineExecutionLock = true;
+            toggleLoadingState(true);
+
+            const chosenAmount = elAmountFilter.value;
+            const targetProxyConfig = elProxySystem.value;
+            
+            let proxyPrefixUrl = 'https://corsproxy.io/?url=';
+            if (targetProxyConfig === 'allorigins') {
+                proxyPrefixUrl = 'https://api.allorigins.win/raw?url=';
+            } else if (targetProxyConfig === 'custom') {
+                proxyPrefixUrl = elCustomProxyInput.value;
+            }
+
+            const binanceP2PEndpoint = 'https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search';
+            const completeRequestUri = proxyPrefixUrl + encodeURIComponent(binanceP2PEndpoint);
+
+            // Construct Binance P2P Payload
+            const payloadData = {
+                "asset": "USDT",
+                "fiat": "NPR",
+                "merchantCheck": false,
+                "page": 1,
+                "payTypes": [],
+                "publisherType": null,
+                "rows": 20,
+                "tradeType": "BUY",
+                "transAmount": chosenAmount
+            };
+
+            try {
+                const apiResponse = await fetch(completeRequestUri, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payloadData)
+                });
+
+                if (!apiResponse.ok) {
+                    throw new Error(`Gateway Error encountered (HTTP status: ${apiResponse.status})`);
+                }
+
+                const responseDataset = await apiResponse.json();
+
+                if (!responseDataset.success || !responseDataset.data || responseDataset.data.length === 0) {
+                    throw new Error("No validation offers parsed or proxy data limit restrictions active.");
+                }
+
+                clearError();
+                processIncomingP2PData(responseDataset.data, chosenAmount);
+
+            } catch (runtimeError) {
+                console.error("Pipeline Sync Error: ", runtimeError);
+                triggerErrorDisplay(runtimeError.message || "Failed execution loop processing via proxy pipeline.");
+                
+                // Adaptive Fallback Mechanism: Auto transition proxy configurations if failure triggers
+                if (targetProxyConfig === 'corsproxy') {
+                    elProxySystem.value = 'allorigins';
+                    triggerErrorDisplay("CorsProxy.io issue resolved via AllOrigins auto-switchover layer. Re-evaluating engine...");
+                    setTimeout(executeDataSyncPipeline, 1200);
+                }
+            } finally {
+                engineExecutionLock = false;
+                toggleLoadingState(false);
+            }
+        }
+
+        // Process Extracted JSON Order Data arrays
+        function processIncomingP2PData(orderRows, targetVolume) {
+            const numericalPrices = orderRows
+                .map(orderItem => parseFloat(orderItem.adv.price))
+                .filter(parsedPriceValue => !isNaN(parsedPriceValue));
+
+            if (numericalPrices.length === 0) {
+                throw new Error("Order configuration pricing parse constraints failed.");
+            }
+
+            // Calculation Matrix Engine
+            const determinedLowestPrice = Math.min(...numericalPrices);
+            const determinedHighestPrice = Math.max(...numericalPrices);
+            const absoluteCalculatedSpread = determinedHighestPrice - determinedLowestPrice;
+            const calculatedPercentageSpread = (absoluteCalculatedSpread / determinedLowestPrice) * 100;
+
+            const calendarTimestamp = new Date();
+            const formattingTimeString = calendarTimestamp.toLocaleTimeString();
+
+            // Dom Updates Execution
+            elLowPrice.innerText = determinedLowestPrice.toFixed(2);
+            elHighPrice.innerText = determinedHighestPrice.toFixed(2);
+            elSpread.innerText = absoluteCalculatedSpread.toFixed(2);
+            elSpreadPercent.innerText = `Spread Delta: ${calculatedPercentageSpread.toFixed(2)}%`;
+            elLastUpdated.innerText = formattingTimeString;
+            
+            runningSessionTickCount++;
+            elSessionCount.innerText = `Session updates recorded: ${runningSessionTickCount}`;
+
+            // Handle Daily Persistent Storage Interface
+            persistDataToDailyMemory(calendarTimestamp, determinedLowestPrice, determinedHighestPrice, targetVolume);
+
+            // Handle Local Variable Buffer Arrays for UI Chart Window Constraints
+            sessionDataPoints.push({
+                timeLabel: formattingTimeString,
+                lowValue: determinedLowestPrice,
+                highValue: determinedHighestPrice
+            });
+
+            // Enforce window constraints of keeping last 20 - 50 datasets
+            if (sessionDataPoints.length > 40) {
+                sessionDataPoints.shift();
+            }
+
+            // Bind update trends back onto Chart instance
+            chartInstance.data.labels = sessionDataPoints.map(item => item.timeLabel);
+            chartInstance.data.datasets[0].data = sessionDataPoints.map(item => item.lowValue);
+            chartInstance.data.datasets[1].data = sessionDataPoints.map(item => item.highValue);
+            chartInstance.update('none'); // Update using performant context frame rendering paths
+
+            // Append Record Row inside UI View Port Logs
+            injectAuditRow(formattingTimeString, targetVolume, determinedLowestPrice, determinedHighestPrice);
+        }
+
+        // Local Storage Daily Data Memory Persistence Layer
+        function persistDataToDailyMemory(timestamp, low, high, volume) {
+            const memoryDataStructure = {
+                time: timestamp.toISOString(),
+                low: low,
+                high: high,
+                amount: volume
+            };
+
+            try {
+                let existingHistoricalMemory = JSON.parse(localStorage.getItem('binance_p2p_npr_analytics')) || [];
+                existingHistoricalMemory.push(memoryDataStructure);
+                
+                // Limit maximum internal history arrays to avoid data block degradation (max 2000 points saved)
+                if (existingHistoricalMemory.length > 2000) {
+                    existingHistoricalMemory.shift();
+                }
+                
+                localStorage.setItem('binance_p2p_npr_analytics', JSON.stringify(existingHistoricalMemory));
+            } catch (storageError) {
+                console.warn("Storage limits or settings blocked writing log traces: ", storageError);
+            }
+        }
+
+        // Injects Data Row entries to Audit log visual board tables
+        function injectAuditRow(time, volume, low, high) {
+            const tableRowElement = document.createElement('tr');
+            tableRowElement.style.animation = "fadeIn 0.2s ease";
+            
+            tableRowElement.innerHTML = `
+                <td style="color: var(--text-secondary);">${time}</td>
+                <td>${parseInt(volume).toLocaleString()} NPR</td>
+                <td style="color: var(--green);">${low.toFixed(2)}</td>
+                <td style="color: var(--red);">${high.toFixed(2)}</td>
+            `;
+
+            elTicksTableBody.insertBefore(tableRowElement, elTicksTableBody.firstChild);
+
+            // Keep table interface view row counts clean
+            if (elTicksTableBody.children.length > 50) {
+                elTicksTableBody.removeChild(elTicksTableBody.lastChild);
+            }
+        }
+
+        // Master UI Loading State Controllers
+        function toggleLoadingState(isLoadingActive) {
+            if (isLoadingActive) {
+                elLoadingIndicator.style.display = 'block';
+                elBtnText.innerText = "Synchronizing...";
+                elManualRefreshBtn.disabled = true;
+                elManualRefreshBtn.style.opacity = '0.7';
+            } else {
+                elLoadingIndicator.style.display = 'none';
+                elBtnText.innerText = "Sync Engine";
+                elManualRefreshBtn.disabled = false;
+                elManualRefreshBtn.style.opacity = '1';
+            }
+        }
+
+        // Application Error Banner Dispatcher Interface
+        function triggerErrorDisplay(errorMessageText) {
+            elAlertMessage.innerText = errorMessageText;
+            elAlertBanner.style.display = 'flex';
+        }
+
+        function clearError() {
+            elAlertBanner.style.display = 'none';
+        }
+
+        // System Wipe Local Storage Triggers
+        function clearSystemData() {
+            if (confirm("Execute configuration wipe on localized historical tracking dataset logs? This preserves session charts.")) {
+                localStorage.removeItem('binance_p2p_npr_analytics');
+                elTicksTableBody.innerHTML = '';
+                alert("Data clearance execution finalized.");
+            }
+        }
+    </script>
 </body>
 </html>
