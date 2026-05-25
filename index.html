@@ -110,7 +110,7 @@
             border-radius: 12px;
             padding: 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 20px;
             align-items: flex-end;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -445,6 +445,14 @@
 
         <section class="controls-card">
             <div class="control-group">
+                <label for="tradeTypeFilter">Trade Type (Direction)</label>
+                <select id="tradeTypeFilter">
+                    <option value="BUY" selected>BUY (Show Crypto Sellers)</option>
+                    <option value="SELL">SELL (Show Crypto Buyers)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
                 <label for="amountFilter">Transaction Volume Filter</label>
                 <select id="amountFilter">
                     <option value="100">100 NPR</option>
@@ -500,14 +508,14 @@
 
         <section class="analytics-grid">
             <div class="card">
-                <div class="card-title">Lowest Target Price (Buy Side)</div>
+                <div class="card-title" id="lowCardTitle">Lowest Price</div>
                 <div class="card-value green" id="lowPriceValue">—</div>
-                <div class="card-meta">Optimal purchase rate found</div>
+                <div class="card-meta">Optimal market match entry</div>
             </div>
             <div class="card">
-                <div class="card-title">Highest Target Price (Sell Side)</div>
+                <div class="card-title" id="highCardTitle">Highest Price</div>
                 <div class="card-value red" id="highPriceValue">—</div>
-                <div class="card-meta">Maximum return liquidation rate</div>
+                <div class="card-meta">Maximum valuation threshold</div>
             </div>
             <div class="card">
                 <div class="card-title">Market Orderbook Spread</div>
@@ -524,7 +532,7 @@
         <section class="dashboard-workspace">
             <div class="card chart-card">
                 <div class="chart-header">
-                    <h3 style="font-size: 16px; font-weight: 600;">Active Session Price Trend Matrix</h3>
+                    <h3 style="font-size: 16px; font-weight: 600;" id="chartMainHeader">Active Session Price Trend Matrix</h3>
                     <span style="font-size: 12px; color: var(--text-secondary);">Real-time stream (Window: 20-50 ticks)</span>
                 </div>
                 <div class="chart-container">
@@ -568,6 +576,7 @@
         const elLastUpdated = document.getElementById('lastUpdatedValue');
         const elSessionCount = document.getElementById('sessionCount');
         const elAmountFilter = document.getElementById('amountFilter');
+        const elTradeTypeFilter = document.getElementById('tradeTypeFilter');
         const elProxySystem = document.getElementById('proxySystem');
         const elCustomProxyWrapper = document.getElementById('customProxyWrapper');
         const elCustomProxyInput = document.getElementById('customProxyInput');
@@ -579,11 +588,15 @@
         const elAlertBanner = document.getElementById('alertBanner');
         const elAlertMessage = document.getElementById('alertMessage');
         const elTicksTableBody = document.getElementById('ticksTableBody');
+        const elLowCardTitle = document.getElementById('lowCardTitle');
+        const elHighCardTitle = document.getElementById('highCardTitle');
+        const elChartMainHeader = document.getElementById('chartMainHeader');
 
         // Application Startup Configurations
         window.addEventListener('DOMContentLoaded', () => {
             initializeChart();
             bindEventStructures();
+            updateUIVisualsForTradeType();
             executeDataSyncPipeline();
             configureEngineScheduling();
         });
@@ -597,7 +610,7 @@
                     labels: [],
                     datasets: [
                         {
-                            label: 'Lowest Price (Buy Opportunity)',
+                            label: 'Lowest Price',
                             borderColor: '#0ecb81',
                             backgroundColor: 'rgba(14, 203, 129, 0.06)',
                             borderWidth: 2,
@@ -609,7 +622,7 @@
                             pointHitRadius: 10
                         },
                         {
-                            label: 'Highest Price (Sell Opportunity)',
+                            label: 'Highest Price',
                             borderColor: '#f6465d',
                             backgroundColor: 'rgba(246, 70, 93, 0.06)',
                             borderWidth: 2,
@@ -662,10 +675,35 @@
             });
         }
 
+        // Adjust UI context labels based on Buy or Sell configuration structures
+        function updateUIVisualsForTradeType() {
+            const currentTradeType = elTradeTypeFilter.value;
+            if (currentTradeType === 'BUY') {
+                elLowCardTitle.innerText = "Lowest Price (Buy Opportunity)";
+                elHighCardTitle.innerText = "Highest Price (Buy Context)";
+                elChartMainHeader.innerText = "Active Session BUY Trend Matrix";
+                chartInstance.data.datasets[0].label = 'Lowest Price (Buy)';
+                chartInstance.data.datasets[1].label = 'Highest Price (Buy)';
+            } else {
+                elLowCardTitle.innerText = "Lowest Price (Sell Context)";
+                elHighCardTitle.innerText = "Highest Price (Sell Opportunity)";
+                elChartMainHeader.innerText = "Active Session SELL Trend Matrix";
+                chartInstance.data.datasets[0].label = 'Lowest Price (Sell)';
+                chartInstance.data.datasets[1].label = 'Highest Price (Sell)';
+            }
+            chartInstance.update('none');
+        }
+
         // Binding Structural DOM Events
         function bindEventStructures() {
             elAmountFilter.addEventListener('change', () => {
                 sessionDataPoints = []; // reset active tracking path on volume parameter context flip
+                executeDataSyncPipeline();
+            });
+
+            elTradeTypeFilter.addEventListener('change', () => {
+                sessionDataPoints = []; // reset active dataset view on trade layout flips
+                updateUIVisualsForTradeType();
                 executeDataSyncPipeline();
             });
 
@@ -709,6 +747,7 @@
             toggleLoadingState(true);
 
             const chosenAmount = elAmountFilter.value;
+            const chosenTradeType = elTradeTypeFilter.value;
             const targetProxyConfig = elProxySystem.value;
             
             let proxyPrefixUrl = 'https://corsproxy.io/?url=';
@@ -721,7 +760,7 @@
             const binanceP2PEndpoint = 'https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search';
             const completeRequestUri = proxyPrefixUrl + encodeURIComponent(binanceP2PEndpoint);
 
-            // Construct Binance P2P Payload
+            // Construct Binance P2P Payload mapped securely to custom trade direction matrix parameters
             const payloadData = {
                 "asset": "USDT",
                 "fiat": "NPR",
@@ -730,7 +769,7 @@
                 "payTypes": [],
                 "publisherType": null,
                 "rows": 20,
-                "tradeType": "BUY",
+                "tradeType": chosenTradeType,
                 "transAmount": chosenAmount
             };
 
@@ -754,7 +793,7 @@
                 }
 
                 clearError();
-                processIncomingP2PData(responseDataset.data, chosenAmount);
+                processIncomingP2PData(responseDataset.data, chosenAmount, chosenTradeType);
 
             } catch (runtimeError) {
                 console.error("Pipeline Sync Error: ", runtimeError);
@@ -773,7 +812,7 @@
         }
 
         // Process Extracted JSON Order Data arrays
-        function processIncomingP2PData(orderRows, targetVolume) {
+        function processIncomingP2PData(orderRows, targetVolume, currentTradeDirection) {
             const numericalPrices = orderRows
                 .map(orderItem => parseFloat(orderItem.adv.price))
                 .filter(parsedPriceValue => !isNaN(parsedPriceValue));
@@ -802,7 +841,7 @@
             elSessionCount.innerText = `Session updates recorded: ${runningSessionTickCount}`;
 
             // Handle Daily Persistent Storage Interface
-            persistDataToDailyMemory(calendarTimestamp, determinedLowestPrice, determinedHighestPrice, targetVolume);
+            persistDataToDailyMemory(calendarTimestamp, determinedLowestPrice, determinedHighestPrice, targetVolume, currentTradeDirection);
 
             // Handle Local Variable Buffer Arrays for UI Chart Window Constraints
             sessionDataPoints.push({
@@ -823,16 +862,17 @@
             chartInstance.update('none'); // Update using performant context frame rendering paths
 
             // Append Record Row inside UI View Port Logs
-            injectAuditRow(formattingTimeString, targetVolume, determinedLowestPrice, determinedHighestPrice);
+            injectAuditRow(formattingTimeString, targetVolume, determinedLowestPrice, determinedHighestPrice, currentTradeDirection);
         }
 
         // Local Storage Daily Data Memory Persistence Layer
-        function persistDataToDailyMemory(timestamp, low, high, volume) {
+        function persistDataToDailyMemory(timestamp, low, high, volume, tradeDirection) {
             const memoryDataStructure = {
                 time: timestamp.toISOString(),
                 low: low,
                 high: high,
-                amount: volume
+                amount: volume,
+                direction: tradeDirection
             };
 
             try {
@@ -851,13 +891,16 @@
         }
 
         // Injects Data Row entries to Audit log visual board tables
-        function injectAuditRow(time, volume, low, high) {
+        function injectAuditRow(time, volume, low, high, direction) {
             const tableRowElement = document.createElement('tr');
             tableRowElement.style.animation = "fadeIn 0.2s ease";
             
+            const badgeStyle = direction === 'BUY' ? 'color: var(--green); font-weight: bold;' : 'color: var(--red); font-weight: bold;';
+            const mappedVolumeDisplay = `${parseInt(volume).toLocaleString()} NPR <span style="${badgeStyle}">(${direction})</span>`;
+
             tableRowElement.innerHTML = `
                 <td style="color: var(--text-secondary);">${time}</td>
-                <td>${parseInt(volume).toLocaleString()} NPR</td>
+                <td>${mappedVolumeDisplay}</td>
                 <td style="color: var(--green);">${low.toFixed(2)}</td>
                 <td style="color: var(--red);">${high.toFixed(2)}</td>
             `;
