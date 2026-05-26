@@ -3,776 +3,533 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binance P2P USDT/NPR Analytics Terminal (Global Background Scanner)</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-    
+    <title>All-in-One Audio Visualizer & Video Exporter</title>
     <style>
-        /* CORE PROFESSIONAL DARK TRADING THEME UI */
         :root {
-            --bg-main: #0b0e11;
-            --bg-card: #181a20;
-            --bg-input: #2b3139;
-            --text-primary: #eaecef;
-            --text-secondary: #848e9c;
-            --binance-yellow: #fcd535;
-            --binance-yellow-hover: #f0c822;
-            --trade-green: #0ecb81;
-            --trade-red: #f6465d;
-            --border-color: #2b3139;
-            --accent-glow: rgba(252, 213, 53, 0.15);
-        }
-
-        .light-theme {
-            --bg-main: #f5f5f7;
-            --bg-card: #ffffff;
-            --bg-input: #eaecef;
-            --text-primary: #1e2329;
-            --text-secondary: #707a8a;
-            --border-color: #e0e0e0;
-            --accent-glow: rgba(0, 0, 0, 0.05);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --bg-color: #0b0c10;
+            --container-bg: #1f2833;
+            --accent-color: #66fcf1;
+            --text-color: #c5c6c7;
         }
 
         body {
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            transition: background-color 0.2s, color 0.2s;
-            overflow-x: hidden;
-            padding-bottom: 40px;
-        }
-
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-main); }
-        ::-webkit-scrollbar-thumb { background: var(--bg-input); border-radius: 4px; }
-
-        /* App Header Layout */
-        .app-header {
-            background-color: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px 24px;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            min-height: 100vh;
         }
 
-        .logo-container { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { width: 20px; height: 20px; background-color: var(--binance-yellow); transform: rotate(45deg); }
-        .badge { background: var(--bg-input); color: var(--binance-yellow); font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; margin-left: 8px; }
+        header {
+            text-align: center;
+            margin: 20px 0;
+        }
 
-        .header-controls { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-        .control-group { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); }
+        header h1 {
+            margin: 0;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
 
-        select, input {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 6px 12px;
-            border-radius: 4px;
+        .main-container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+            background: var(--container-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            margin-bottom: 30px;
+        }
+
+        .control-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .visualizer-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        input[type="file"], select, button {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #45f3ff;
+            background: #0b0c10;
+            color: #fff;
+            font-size: 14px;
             outline: none;
-            font-size: 0.85rem;
-        }
-
-        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: background-color 0.2s; }
-        .btn-secondary { background-color: var(--bg-input); color: var(--text-primary); }
-        .btn-secondary:hover { background-color: var(--border-color); }
-
-        .status-indicator { font-size: 0.8rem; font-weight: bold; padding: 4px 10px; border-radius: 20px; }
-        .status-indicator.online { background: rgba(14, 203, 129, 0.12); color: var(--trade-green); }
-        .status-indicator.fallback { background: rgba(252, 213, 53, 0.12); color: var(--binance-yellow); }
-
-        /* Global Dynamic Scanner Panel */
-        .scanner-status-panel {
-            background: rgba(24, 26, 32, 0.7);
-            border-bottom: 1px solid var(--border-color);
-            padding: 8px 24px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 0.8rem;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-        .scanner-title { color: var(--binance-yellow); font-weight: bold; display: flex; align-items: center; gap: 6px; }
-        .scanner-pulse { width: 6px; height: 6px; background-color: var(--binance-yellow); border-radius: 50%; animation: pulse 1.2s infinite; }
-
-        /* Quick Analytics Ribbon */
-        .analytics-bar {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            padding: 16px 24px;
-        }
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            padding: 14px;
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .stat-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
-        .stat-value { font-size: 1.1rem; font-weight: 700; }
-
-        .text-green { color: var(--trade-green); }
-        .text-red { color: var(--trade-red); }
-        .text-accent { color: var(--binance-yellow); }
-
-        /* Amount Filters Matrix Component with Live Data Sub-badges */
-        .amount-filters-container { padding: 8px 24px; display: flex; flex-direction: column; gap: 8px; }
-        .filter-title { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; }
-        .filters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
-        
-        .filter-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 8px;
-            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
+            transition: 0.3s;
+        }
+
+        button:hover, select:hover {
+            background: var(--accent-color);
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        button:disabled {
+            background: #333;
+            color: #777;
+            border-color: #555;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        canvas {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 8px;
+            border: 2px solid #45f3ff;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .status {
+            font-size: 14px;
+            color: #ff4545;
+            font-weight: bold;
+            margin-top: 5px;
             text-align: center;
         }
-        .filter-btn:hover { border-color: var(--binance-yellow); }
-        .filter-btn .btn-main-txt { font-weight: bold; font-size: 0.85rem; }
-        .filter-btn .btn-sub-txt { font-size: 0.68rem; color: var(--text-secondary); }
-        
-        .filter-btn.active {
-            background-color: var(--binance-yellow);
-            color: #0b0e11;
-            border-color: var(--binance-yellow);
-            box-shadow: 0 0 8px var(--accent-glow);
+
+        .recording-active {
+            animation: pulse 1s infinite alternate;
+            color: #ff0043 !important;
         }
-        .filter-btn.active .btn-sub-txt { color: #2b3139; font-weight: 500; }
-        .filter-btn.bg-updating { border-color: var(--trade-green); background: rgba(14, 203, 129, 0.05); }
 
-        /* Interactive Tabs Navigation */
-        .tab-navigation { display: flex; border-bottom: 1px solid var(--border-color); margin: 15px 24px 0 24px; gap: 8px; }
-        .tab-btn {
-            background: none; border: none; color: var(--text-secondary); padding: 12px 20px;
-            cursor: pointer; font-size: 0.95rem; font-weight: 600; border-bottom: 3px solid transparent; transition: all 0.2s;
+        @keyframes pulse {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
         }
-        .tab-btn:hover { color: var(--text-primary); }
-        .tab-btn.active { color: var(--binance-yellow); border-bottom-color: var(--binance-yellow); }
 
-        .content-area { padding: 24px; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* Analytics Tab & Chart Component */
-        .chart-wrapper { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; }
-        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-        .live-indicator-container { display: flex; align-items: center; gap: 8px; }
-        .panel-title { font-weight: 600; font-size: 0.95rem; }
-        .pulse-dot { width: 8px; height: 8px; background-color: var(--trade-green); border-radius: 50%; animation: pulse 1.8s infinite; }
-        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.4; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.4; } }
-        .last-updated { font-size: 0.8rem; color: var(--text-secondary); }
-        .canvas-container { position: relative; height: 50vh; width: 100%; }
-
-        /* Marketplace Interface Component */
-        .marketplace-controls { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-        #merchant-search { flex: 1; min-width: 200px; }
-        .market-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; }
-        @media(max-width: 768px) { .market-grid { grid-template-columns: 1fr; } }
-
-        .book-side { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; }
-        .side-heading { font-size: 1rem; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; font-weight: 600; }
-        .table-responsive { overflow-x: auto; }
-        .p2p-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8rem; }
-        .p2p-table th { color: var(--text-secondary); padding: 10px 8px; border-bottom: 1px solid var(--border-color); font-weight: 500; }
-        .p2p-table td { padding: 12px 8px; border-bottom: 1px solid rgba(132, 142, 156, 0.08); vertical-align: top; }
-
-        .merchant-badge { display: inline-flex; align-items: center; gap: 4px; }
-        .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-        .status-dot.online { background-color: var(--trade-green); }
-        .status-dot.offline { background-color: var(--text-secondary); }
-        .merchant-stats { font-size: 0.7rem; color: var(--text-secondary); display: block; margin-top: 2px; }
-
-        .order-btn { padding: 6px 12px; border-radius: 4px; border: none; color: #fff; font-weight: bold; cursor: pointer; font-size: 0.75rem; }
-        .order-btn.buy-action { background-color: var(--trade-green); }
-        .order-btn.sell-action { background-color: var(--trade-red); }
-
-        /* Skeleton Loading UI state */
-        .skeleton-row td {
-            background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-input) 50%, var(--bg-card) 75%);
-            background-size: 200% 100%;
-            animation: loading-skeleton 1.6s infinite;
-            height: 45px;
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
         }
-        @keyframes loading-skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-        /* Notification Toast popup overlay */
-        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: #1e2329; border-left: 4px solid var(--binance-yellow); padding: 12px 20px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 0.85rem; color: #fff; }
-
-        .app-footer { margin-top: 40px; background-color: var(--bg-card); border-top: 1px solid var(--border-color); padding: 20px; font-size: 0.75rem; color: var(--text-secondary); text-align: center; line-height: 1.6; }
     </style>
 </head>
-<body class="dark-theme">
+<body>
 
-    <header class="app-header">
-        <div class="logo-container">
-            <div class="logo-icon"></div>
-            <h1>Binance P2P Analytics <span class="badge">NPR/USDT</span></h1>
-        </div>
-        <div class="header-controls">
-            <div class="control-group">
-                <label for="alert-threshold">Spread Alert (NPR):</label>
-                <input type="number" id="alert-threshold" value="1.5" step="0.1" style="width: 65px;">
-            </div>
-            <button id="theme-toggle" class="btn btn-secondary">🌓 Theme</button>
-            <button id="export-csv" class="btn btn-secondary">📥 Export Active History</button>
-            <div id="connection-status" class="status-indicator online">Connected</div>
-        </div>
+    <header>
+        <h1>Pro Audio Visualizer</h1>
+        <p>Upload Audio → Select Style → Export Video</p>
     </header>
 
-    <div class="scanner-status-panel">
-        <div class="scanner-title"><span class="scanner-pulse"></span> GLOBAL SCANNERS STREAMS:</div>
-        <div id="scanner-ticker-box" style="color: var(--text-secondary);">Initializing algorithmic multi-channel queue...</div>
+    <div class="main-container">
+        <!-- Left Side Controls -->
+        <div class="control-panel">
+            <div class="input-group">
+                <label for="audioFile">1. Upload Audio (MP3/WAV)</label>
+                <input type="file" id="audioFile" accept="audio/*">
+            </div>
+
+            <div class="input-group">
+                <label for="visualizerStyle">2. Select Visualizer Style (15 Styles)</label>
+                <select id="visualizerStyle">
+                    <option value="1">1. Classic Frequency Bars</option>
+                    <option value="2">2. Center Circular Pulse</option>
+                    <option value="3">3. Dual Waveform (Line)</option>
+                    <option value="4">4. Retro Neon Equalizer</option>
+                    <option value="5">5. Exploding Particle Ring</option>
+                    <option value="6">6. Smooth Liquid Wave</option>
+                    <option value="7">7. Floating Bubble Spectrum</option>
+                    <option value="8">8. Double-Sided Tunnel</option>
+                    <option value="9">9. Starburst DNA Matrix</option>
+                    <option value="10">10. Cyberpunk Block Grid</option>
+                    <option value="11">11. Abstract Geometric Poly</option>
+                    <option value="12">12. Heartbeat Pulse Line</option>
+                    <option value="13">13. Laser Beam Scanner</option>
+                    <option value="14">14. Matrix Rain Audio Drops</option>
+                    <option value="15">15. Golden Luxury Ripple</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="colorTheme">3. Color Accent</label>
+                <select id="colorTheme">
+                    <option value="cyan">Neon Cyan</option>
+                    <option value="gold">Luxury Gold</option>
+                    <option value="magenta">Cyber Pink</option>
+                    <option value="matrix">Digital Green</option>
+                    <option value="rainbow">Dynamic Rainbow</option>
+                </select>
+            </div>
+
+            <hr style="border-color: #333; margin: 10px 0;">
+
+            <button id="btnRecord" disabled>🔴 Start Recording Video</button>
+            <button id="btnStop" disabled>⏹️ Stop & Export Video</button>
+            
+            <div id="statusText" class="status">Upload an audio to start</div>
+        </div>
+
+        <!-- Right Side Player and Screen -->
+        <div class="visualizer-panel">
+            <canvas id="visualizerCanvas" width="1280" height="720"></canvas>
+            <audio id="audioPlayer" controls></audio>
+        </div>
     </div>
 
-    <section class="analytics-bar">
-        <div class="stat-card">
-            <span class="stat-label">Highest BUY Price (Selected)</span>
-            <span id="stat-high-buy" class="stat-value text-green">--.-- NPR</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Lowest SELL Price (Selected)</span>
-            <span id="stat-low-sell" class="stat-value text-red">--.-- NPR</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Real-time Spread</span>
-            <span id="stat-spread" class="stat-value text-accent">--.-- NPR</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Volatility Index</span>
-            <span id="stat-volatility" class="stat-value">--.--%</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Arbitrage Spread State</span>
-            <span id="stat-arbitrage" class="stat-value text-green">SCANNING</span>
-        </div>
-    </section>
-
-    <nav class="amount-filters-container">
-        <span class="filter-title">Select Active Chart Profile (All Categories background sync constantly):</span>
-        <div id="amount-filters" class="filters-grid"></div>
-    </nav>
-
-    <nav class="tab-navigation">
-        <button class="tab-btn active" data-tab="chart-tab">📈 Interactive Analytics Chart</button>
-        <button class="tab-btn" data-tab="marketplace-tab">🏪 Real-time Order Book</button>
-    </nav>
-
-    <main class="content-area">
-        <div id="chart-tab" class="tab-content active">
-            <div class="chart-wrapper">
-                <div class="chart-header">
-                    <div class="live-indicator-container">
-                        <span class="pulse-dot"></span>
-                        <span class="panel-title">Aggregated P2P Price Execution Streams</span>
-                    </div>
-                    <div class="last-updated" id="last-updated-text">Last Sync Status: Active</div>
-                </div>
-                <div class="canvas-container">
-                    <canvas id="analyticsChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div id="marketplace-tab" class="tab-content">
-            <div class="marketplace-controls">
-                <input type="text" id="merchant-search" placeholder="🔍 Filter by merchant name...">
-                <select id="payment-filter">
-                    <option value="ALL">All Payment Types</option>
-                    <option value="eSewa">eSewa</option>
-                    <option value="Khalti">Khalti</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
-                </select>
-                <select id="market-sort">
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                    <option value="completion">Completion Performance</option>
-                </select>
-            </div>
-
-            <div class="market-grid">
-                <div class="book-side">
-                    <h3 class="side-heading text-green">Buy Ads (Fiat to Crypto)</h3>
-                    <div class="table-responsive">
-                        <table class="p2p-table">
-                            <thead>
-                                <tr>
-                                    <th>Advertiser Merchant</th>
-                                    <th>Price (NPR)</th>
-                                    <th>Limits / Volume</th>
-                                    <th>Supported Gateway</th>
-                                    <th>Trade</th>
-                                </tr>
-                            </thead>
-                            <tbody id="buy-ads-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="book-side">
-                    <h3 class="side-heading text-red">Sell Ads (Crypto to Fiat)</h3>
-                    <div class="table-responsive">
-                        <table class="p2p-table">
-                            <thead>
-                                <tr>
-                                    <th>Advertiser Merchant</th>
-                                    <th>Price (NPR)</th>
-                                    <th>Limits / Volume</th>
-                                    <th>Supported Gateway</th>
-                                    <th>Trade</th>
-                                </tr>
-                            </thead>
-                            <tbody id="sell-ads-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div class="toast-container" id="toast-bin"></div>
-
-    <footer class="app-footer">
-        <p>⚠️ <strong>Client-Side Multi-Channel Engine Engine Disclaimer:</strong> This terminal runs automated round-robin background sync across all 18 limits categories every 2 seconds. Browsers restrict tasks if tabs are frozen or minimized. For permanent server metrics, offload to Cloudflare workers background collectors.</p>
-    </footer>
-
     <script>
-        // ==========================================
-        // 1. STORAGE MODULE (IndexedDB)
-        // ==========================================
-        const StorageSystem = (() => {
-            const DB_NAME = 'p2pHistoryDB';
-            const DB_VERSION = 1;
-            let dbInstance = null;
-            const CATEGORIES = ['100','200','300','500','1000','1500','2000','2500','3000','4000','5000','10000','15000','20000','25000','30000','40000','45000'];
+        const audioFile = document.getElementById('audioFile');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const canvas = document.getElementById('visualizerCanvas');
+        const ctx = canvas.getContext('2d');
+        const styleSelect = document.getElementById('visualizerStyle');
+        const themeSelect = document.getElementById('colorTheme');
+        const btnRecord = document.getElementById('btnRecord');
+        const btnStop = document.getElementById('btnStop');
+        const statusText = document.getElementById('statusText');
 
-            function init() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open(DB_NAME, DB_VERSION);
-                    request.onupgradeneeded = (e) => {
-                        const db = e.target.result;
-                        CATEGORIES.forEach(cat => {
-                            if (!db.objectStoreNames.contains(`history_${cat}`)) {
-                                db.createObjectStore(`history_${cat}`, { keyPath: 'timestamp' });
-                            }
-                        });
-                    };
-                    request.onsuccess = (e) => { dbInstance = e.target.result; resolve(); };
-                    request.onerror = (e) => reject(e.target.error);
-                });
-            }
+        let audioCtx, analyser, source, bufferLength, dataArray;
+        let animationFrameId;
+        let mediaRecorder;
+        let recordedChunks = [];
+        let globalRotation = 0;
 
-            function saveRecord(category, buyPrice, sellPrice, spread) {
-                if (!dbInstance) return;
-                const tx = dbInstance.transaction([`history_${category}`], 'readwrite');
-                const store = tx.objectStore(`history_${category}`);
-                store.put({
-                    timestamp: Date.now(),
-                    buyPrice: parseFloat(buyPrice),
-                    sellPrice: parseFloat(sellPrice),
-                    spread: parseFloat(spread)
-                });
-            }
+        // Colors setup
+        function getColor(index, total, theme) {
+            if (theme === 'cyan') return `hsl(180, 100%, ${50 + (index/total)*20}%)`;
+            if (theme === 'gold') return `hsl(45, 100%, ${40 + (index/total)*30}%)`;
+            if (theme === 'magenta') return `hsl(320, 100%, ${50 + (index/total)*20}%)`;
+            if (theme === 'matrix') return `hsl(120, 100%, ${40 + (index/total)*20}%)`;
+            if (theme === 'rainbow') return `hsl(${(index/total) * 360}, 100%, 50%)`;
+            return '#66fcf1';
+        }
 
-            function getHistory(category) {
-                return new Promise((resolve) => {
-                    if (!dbInstance) return resolve([]);
-                    const tx = dbInstance.transaction([`history_${category}`], 'readonly');
-                    const store = tx.objectStore(`history_${category}`);
-                    const req = store.getAll();
-                    req.onsuccess = () => resolve(req.result.sort((a,b)=>a.timestamp - b.timestamp));
-                });
-            }
-
-            return { init, saveRecord, getHistory, categories: CATEGORIES };
-        })();
-
-        // ==========================================
-        // 2. NETWORK CONTROLLER ENGINE (Binance Fetch & Proxy Logic)
-        // ==========================================
-        const BinanceAPI = (() => {
-            const ENDPOINT = 'https://p2p.binance.com/bapi/cug/v1/p2p/capi/trade/search';
-
-            async function fetchP2P(side, amount) {
-                try {
-                    const response = await fetch(ENDPOINT, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            "proMerchantAds": false, "page": 1, "rows": 10, "payTypes": [],
-                            "countries": [], "publisherType": null, "asset": "USDT", "fiat": "NPR",
-                            "tradeType": side, "transAmount": amount
-                        })
-                    });
-                    if(!response.ok) throw new Error();
-                    const json = await response.json();
-                    return json.data || [];
-                } catch(e) {
-                    document.getElementById('connection-status').className = "status-indicator fallback";
-                    document.getElementById('connection-status').innerText = "Simulated API (CORS)";
-                    return generateMockAds(side, amount);
-                }
-            }
-
-            function generateMockAds(side, amount) {
-                const baseAmt = parseFloat(amount) || 500;
-                let seedPrice = 136.20 + (Math.log10(baseAmt) * 0.45);
-                if (side === 'SELL') seedPrice += 0.95 + (Math.random() * 0.2);
-
-                const merchants = ["EverestCryptoOTC", "KathmanduEscrow", "HimalayaLiquidity", "Bagmati_USDT_Traders", "PokharaP2P_Merchant", "Lumbini_OTC", "SherpaFX"];
-                return merchants.map((m, idx) => {
-                    const variance = (side === 'BUY' ? -idx : idx) * 0.05 + (Math.random() * 0.02);
-                    const finalPrice = parseFloat((seedPrice + variance).toFixed(2));
-                    return {
-                        adv: { name: m, monthOrderCount: 450 + (idx*30), monthFinishRate: (95.4 + (Math.random()*4.2)).toFixed(2), isOnline: Math.random() > 0.15 },
-                        adDetail: {
-                            price: finalPrice,
-                            availableAmount: (1200 + (Math.random()*5000)).toFixed(2),
-                            minSingleTransAmount: baseAmt.toFixed(2),
-                            maxSingleTransAmount: (baseAmt + 40000).toFixed(2),
-                            paymentMethods: [{ tradeMethodName: idx % 2 === 0 ? "eSewa" : "Bank Transfer" }, { tradeMethodName: idx % 3 === 0 ? "Khalti" : "eSewa" }]
-                        }
-                    };
-                });
-            }
-
-            return { fetchP2P };
-        })();
-
-        // ==========================================
-        // 3. TIMESERIES CHART ADAPTER INTERFACE
-        // ==========================================
-        const DashboardChart = (() => {
-            let instance = null;
-
-            function init() {
-                const ctx = document.getElementById('analyticsChart').getContext('2d');
-                instance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        datasets: [
-                            { label: 'Top Buy Price', data: [], borderColor: '#0ecb81', backgroundColor: 'rgba(14, 203, 129, 0.04)', borderWidth: 2, pointRadius: 2, fill: true, tension: 0.15 },
-                            { label: 'Top Sell Price', data: [], borderColor: '#f6465d', backgroundColor: 'rgba(246, 70, 93, 0.04)', borderWidth: 2, pointRadius: 2, fill: true, tension: 0.15 }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: { type: 'time', time: { unit: 'second', displayFormats: { second: 'HH:mm:ss' } }, grid: { color: '#2b3139' }, ticks: { color: '#848e9c' } },
-                            y: { grid: { color: '#2b3139' }, ticks: { color: '#848e9c' } }
-                        },
-                        plugins: { legend: { labels: { color: '#eaecef' } } }
-                    }
-                });
-            }
-
-            function render(historyArray) {
-                if(!instance) return;
-                const buyPoints = historyArray.map(h => ({ x: h.timestamp, y: h.buyPrice }));
-                const sellPoints = historyArray.map(h => ({ x: h.timestamp, y: h.sellPrice }));
-                instance.data.datasets[0].data = buyPoints;
-                instance.data.datasets[1].data = sellPoints;
-                instance.update();
-            }
-
-            return { init, render };
-        })();
-
-        // ==========================================
-        // 4. CORE PIPELINE ENGINES (Global Polling & State)
-        // ==========================================
-        const TerminalApp = (() => {
-            let selectedCategory = '1000';
-            let globalCategoryIndex = 0;
-            let scannerLoopId = null;
+        // Handle Audio Upload
+        audioFile.addEventListener('change', function() {
+            const files = this.files;
+            if(files.length === 0) return;
             
-            let activeBuyAds = [];
-            let activeSellAds = [];
+            const fileURL = URL.createObjectURL(files[0]);
+            audioPlayer.src = fileURL;
+            
+            statusText.textContent = "Audio Loaded! Press Play or Start Recording.";
+            statusText.style.color = "#66fcf1";
+            btnRecord.disabled = false;
+            
+            setupAudioContext();
+        });
 
-            function triggerAudioAlert() {
-                try {
-                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(600, ctx.currentTime);
-                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-                    osc.connect(gain); gain.connect(ctx.destination);
-                    osc.start(); osc.stop(ctx.currentTime + 0.3);
-                } catch(e) {}
-            }
+        function setupAudioContext() {
+            if (audioCtx) return; // Prevent duplicating context
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            source = audioCtx.createMediaElementSource(audioPlayer);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            analyser.fftSize = 512; 
+            bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+            
+            draw();
+        }
 
-            function pushNotification(msg) {
-                const container = document.getElementById('toast-bin');
-                const element = document.createElement('div');
-                element.className = 'toast';
-                element.innerText = msg;
-                container.appendChild(element);
-                triggerAudioAlert();
-                setTimeout(() => element.remove(), 4000);
-            }
+        // 15 Visualizer Rendering Logic
+        function draw() {
+            animationFrameId = requestAnimationFrame(draw);
+            if(!analyser) return;
 
-            function setupFiltersUI() {
-                const container = document.getElementById('amount-filters');
-                container.innerHTML = '';
-                StorageSystem.categories.forEach(cat => {
-                    const btn = document.createElement('button');
-                    btn.id = `btn-node-${cat}`;
-                    btn.className = `filter-btn ${cat === selectedCategory ? 'active' : ''}`;
-                    
-                    btn.innerHTML = `
-                        <span class="btn-main-txt">${cat}≤</span>
-                        <span class="btn-sub-txt" id="badge-val-${cat}">--.--</span>
-                    `;
+            analyser.getByteFrequencyData(dataArray);
+            
+            const WIDTH = canvas.width;
+            const HEIGHT = canvas.height;
+            const style = styleSelect.value;
+            const theme = themeSelect.value;
 
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        selectedCategory = cat;
-                        refreshSelectedContextView();
-                    });
-                    container.appendChild(btn);
-                });
-            }
+            // Background Fill (with slight opacity for motion blur trail)
+            ctx.fillStyle = "rgba(11, 12, 16, 0.2)";
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-            function updateGlobalMetricsPanel(history) {
-                if(history.length === 0) return;
-                const latest = history[history.length - 1];
-                
-                document.getElementById('stat-high-buy').innerText = `${latest.buyPrice.toFixed(2)} NPR`;
-                document.getElementById('stat-low-sell').innerText = `${latest.sellPrice.toFixed(2)} NPR`;
-                document.getElementById('stat-spread').innerText = `${latest.spread.toFixed(2)} NPR`;
+            globalRotation += 0.002; // Dynamic slow spin for circular modes
 
-                const buys = history.map(h => h.buyPrice);
-                const maxB = Math.max(...buys), minB = Math.min(...buys);
-                const variancePct = (((maxB - minB) / (minB || 1)) * 100).toFixed(3);
-                document.getElementById('stat-volatility').innerText = `${variancePct}%`;
+            switch (style) {
+                case "1": // Classic Frequency Bars
+                    let barWidth = (WIDTH / bufferLength) * 1.5;
+                    let barHeight;
+                    let x = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        barHeight = dataArray[i] * 2.2;
+                        ctx.fillStyle = getColor(i, bufferLength, theme);
+                        ctx.fillRect(x, HEIGHT - barHeight, barWidth - 2, barHeight);
+                        x += barWidth;
+                    }
+                    break;
 
-                const triggerThreshold = parseFloat(document.getElementById('alert-threshold').value) || 1.5;
-                const arbSignalNode = document.getElementById('stat-arbitrage');
-                
-                if(latest.spread >= triggerThreshold) {
-                    arbSignalNode.innerText = "🚨 ARBITRAGE ALERT";
-                    arbSignalNode.style.color = "var(--trade-green)";
-                } else {
-                    arbSignalNode.innerText = "SCANNING STATE";
-                    arbSignalNode.style.color = "var(--text-secondary)";
-                }
-            }
+                case "2": // Center Circular Pulse
+                    ctx.save();
+                    ctx.translate(WIDTH / 2, HEIGHT / 2);
+                    ctx.rotate(globalRotation);
+                    for (let i = 0; i < bufferLength; i++) {
+                        let angle = (i / bufferLength) * Math.PI * 2;
+                        let value = dataArray[i] * 1.2;
+                        let x1 = Math.cos(angle) * 150;
+                        let y1 = Math.sin(angle) * 150;
+                        let x2 = Math.cos(angle) * (150 + value);
+                        let y2 = Math.sin(angle) * (150 + value);
+                        ctx.strokeStyle = getColor(i, bufferLength, theme);
+                        ctx.lineWidth = 4;
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                    break;
 
-            // [CRITICAL FEATURE] Global Infinite Round-Robin Background Engine
-            async function startGlobalScannerLoop() {
-                const categories = StorageSystem.categories;
-                
-                const processNextCategory = async () => {
-                    const targetCat = categories[globalCategoryIndex];
-                    
-                    // UI status indicators showing visual feedback of current processing category
-                    document.getElementById('scanner-ticker-box').innerText = `Syncing ledger stream node values for threshold tier allocation: NPR ${targetCat}`;
-                    const targetBtnNode = document.getElementById(`btn-node-${targetCat}`);
-                    if(targetBtnNode) targetBtnNode.classList.add('bg-updating');
+                case "3": // Dual Waveform Line
+                    ctx.beginPath();
+                    ctx.lineWidth = 5;
+                    ctx.strokeStyle = getColor(50, 100, theme);
+                    let sliceWidth = WIDTH / bufferLength;
+                    let lineX = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        let v = dataArray[i] / 128.0;
+                        let y = (v * HEIGHT / 2);
+                        if (i === 0) ctx.moveTo(lineX, y);
+                        else ctx.lineTo(lineX, y);
+                        lineX += sliceWidth;
+                    }
+                    ctx.stroke();
+                    break;
 
-                    // Non-blocking asynchronous ingestion processing requests
-                    const [buys, sells] = await Promise.all([
-                        BinanceAPI.fetchP2P('BUY', targetCat),
-                        BinanceAPI.fetchP2P('SELL', targetCat)
-                    ]);
-
-                    if(targetBtnNode) targetBtnNode.classList.remove('bg-updating');
-
-                    if(buys.length > 0 && sells.length > 0) {
-                        const topBuy = buys[0].adDetail.price;
-                        const topSell = sells[0].adDetail.price;
-                        const spreadDelta = parseFloat((topSell - topBuy).toFixed(2));
-                        
-                        // Commit record mutations straight into client database repository
-                        StorageSystem.saveRecord(targetCat, topBuy, topSell, spreadDelta);
-                        
-                        // Dynamically inject data values into filter matrix sub-labels in real-time
-                        const badgeNode = document.getElementById(`badge-val-${targetCat}`);
-                        if(badgeNode) {
-                            badgeNode.innerText = `B:${topBuy.toFixed(1)} / S:${topSell.toFixed(1)}`;
-                        }
-
-                        // System alert threshold triggers validation checks
-                        const triggerThreshold = parseFloat(document.getElementById('alert-threshold').value) || 1.5;
-                        if (spreadDelta >= triggerThreshold) {
-                            pushNotification(`[Spread Breach] Category ${targetCat} NPR matched high spread value: ${spreadDelta} NPR`);
-                        }
-
-                        // If background compiler updates current selected profile, force redraw view components instantly
-                        if(targetCat === selectedCategory) {
-                            activeBuyAds = buys;
-                            activeSellAds = sells;
-                            const updatedHistory = await StorageSystem.getHistory(selectedCategory);
-                            DashboardChart.render(updatedHistory);
-                            updateGlobalMetricsPanel(updatedHistory);
-                            renderMarketTables();
-                            document.getElementById('last-updated-text').innerText = `Last Sync Status: ${new Date().toLocaleTimeString()}`;
+                case "4": // Retro Neon Equalizer
+                    let blocks = 15;
+                    let blockW = WIDTH / bufferLength * 2;
+                    for (let i = 0; i < bufferLength; i += 2) {
+                        let val = Math.floor(dataArray[i] / 16);
+                        for (let j = 0; j < val; j++) {
+                            ctx.fillStyle = getColor(i, bufferLength, theme);
+                            ctx.fillRect(i * blockW, HEIGHT - (j * 45), blockW - 4, 35);
                         }
                     }
+                    break;
 
-                    // Increment sequence pointers infinitely
-                    globalCategoryIndex = (globalCategoryIndex + 1) % categories.length;
-                    
-                    // Interval between category checks (2000ms = high performance continuous background sync)
-                    scannerLoopId = setTimeout(processNextCategory, 2000);
-                };
+                case "5": // Exploding Particle Ring
+                    ctx.save();
+                    ctx.translate(WIDTH/2, HEIGHT/2);
+                    for(let i=0; i<bufferLength; i+=2) {
+                        let angle = (i/bufferLength) * Math.PI * 2;
+                        let distance = 100 + dataArray[i] * 1.5;
+                        let pX = Math.cos(angle) * distance;
+                        let pY = Math.sin(angle) * distance;
+                        ctx.fillStyle = getColor(i, bufferLength, theme);
+                        ctx.beginPath();
+                        ctx.arc(pX, pY, dataArray[i]*0.05 + 2, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                    break;
 
-                processNextCategory();
+                case "6": // Smooth Liquid Wave
+                    ctx.beginPath();
+                    ctx.fillStyle = getColor(20, 100, theme);
+                    ctx.moveTo(0, HEIGHT);
+                    for (let i = 0; i < bufferLength; i++) {
+                        let lY = HEIGHT - (dataArray[i] * 1.8) - 50;
+                        let lX = (i / bufferLength) * WIDTH * 1.2;
+                        ctx.lineTo(lX, lY);
+                    }
+                    ctx.lineTo(WIDTH, HEIGHT);
+                    ctx.fill();
+                    break;
+
+                case "7": // Floating Bubble Spectrum
+                    for (let i = 0; i < bufferLength; i += 8) {
+                        let size = dataArray[i] * 0.4;
+                        ctx.fillStyle = getColor(i, bufferLength, theme);
+                        ctx.globalAlpha = 0.3;
+                        ctx.beginPath();
+                        ctx.arc((i/bufferLength)*WIDTH + 50, HEIGHT/2 - (dataArray[i]*0.5), size, 0, Math.PI*2);
+                        ctx.fill();
+                        ctx.globalAlpha = 1.0;
+                    }
+                    break;
+
+                case "8": // Double-Sided Tunnel
+                    for (let i = 0; i < bufferLength; i++) {
+                        let h = dataArray[i] * 1.5;
+                        ctx.fillStyle = getColor(i, bufferLength, theme);
+                        ctx.fillRect((i*6), HEIGHT/2 - h/2, 4, h);
+                    }
+                    break;
+
+                case "9": // Starburst DNA Matrix
+                    ctx.save();
+                    ctx.translate(WIDTH/2, HEIGHT/2);
+                    ctx.rotate(-globalRotation * 2);
+                    for(let i=0; i<bufferLength; i++) {
+                        let size = dataArray[i]*0.8;
+                        ctx.strokeStyle = getColor(i, bufferLength, theme);
+                        ctx.strokeRect(-size/2, -size/2, size, size);
+                    }
+                    ctx.restore();
+                    break;
+
+                case "10": // Cyberpunk Block Grid
+                    let gridRows = 8;
+                    let gridCols = 16;
+                    let cellW = WIDTH / gridCols;
+                    let cellH = HEIGHT / gridRows;
+                    for (let r = 0; r < gridRows; r++) {
+                        for (let c = 0; c < gridCols; c++) {
+                            let index = (r * gridCols + c) % bufferLength;
+                            if (dataArray[index] > 120) {
+                                ctx.fillStyle = getColor(index, bufferLength, theme);
+                                ctx.fillRect(c * cellW + 2, r * cellH + 2, cellW - 4, cellH - 4);
+                            }
+                        }
+                    }
+                    break;
+
+                case "11": // Abstract Geometric Poly
+                    ctx.beginPath();
+                    ctx.strokeStyle = getColor(10, 100, theme);
+                    ctx.lineWidth = 2;
+                    for (let i = 0; i < bufferLength; i += 10) {
+                        let radius = dataArray[i] * 1.4;
+                        let xP = WIDTH/2 + Math.cos(i) * radius;
+                        let yP = HEIGHT/2 + Math.sin(i) * radius;
+                        ctx.lineTo(xP, yP);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+                    break;
+
+                case "12": // Heartbeat Pulse Line
+                    ctx.beginPath();
+                    ctx.lineWidth = 6;
+                    ctx.strokeStyle = '#ff0055';
+                    for(let i=0; i<bufferLength; i++) {
+                        let px = (i/bufferLength) * WIDTH;
+                        let py = (HEIGHT/2) + (dataArray[i] > 180 ? (Math.random() - 0.5)*dataArray[i] : 0);
+                        if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+                    }
+                    ctx.stroke();
+                    break;
+
+                case "13": // Laser Beam Scanner
+                    let maxVal = Math.max(...dataArray);
+                    ctx.fillStyle = getColor(70, 100, theme);
+                    ctx.fillRect(0, HEIGHT - (maxVal*2.5), WIDTH, 8);
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = getColor(70,100,theme);
+                    break;
+
+                case "14": // Matrix Rain Audio Drops
+                    for(let i=0; i<bufferLength; i+=4) {
+                        let speed = dataArray[i]*0.1;
+                        ctx.fillStyle = getColor(i, bufferLength, 'matrix');
+                        ctx.fillRect((i/bufferLength)*WIDTH, (dataArray[i]*2)%HEIGHT, 3, 20 + speed);
+                    }
+                    break;
+
+                case "15": // Golden Luxury Ripple
+                    ctx.save();
+                    ctx.translate(WIDTH/2, HEIGHT/2);
+                    for(let r=50; r<400; r+=50) {
+                        let energy = dataArray[Math.floor(r)%bufferLength] * 0.2;
+                        ctx.strokeStyle = getColor(r, 400, 'gold');
+                        ctx.lineWidth = 2 + energy;
+                        ctx.beginPath();
+                        ctx.arc(0, 0, r + energy, 0, Math.PI*2);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                    break;
             }
+            // Reset shadows to keep rendering performant
+            ctx.shadowBlur = 0;
+        }
 
-            async function refreshSelectedContextView() {
-                const localHistory = await StorageSystem.getHistory(selectedCategory);
-                DashboardChart.render(localHistory);
-                updateGlobalMetricsPanel(localHistory);
-
-                document.getElementById('buy-ads-tbody').innerHTML = `<tr class="skeleton-row"><td></td><td></td><td></td><td></td><td></td></tr>`;
-                document.getElementById('sell-ads-tbody').innerHTML = `<tr class="skeleton-row"><td></td><td></td><td></td><td></td><td></td></tr>`;
-
-                const [buys, sells] = await Promise.all([
-                    BinanceAPI.fetchP2P('BUY', selectedCategory),
-                    BinanceAPI.fetchP2P('SELL', selectedCategory)
-                ]);
-
-                activeBuyAds = buys;
-                activeSellAds = sells;
-                renderMarketTables();
+        // VIDEO EXPORT / RECORDING LOGIC
+        btnRecord.addEventListener('click', function() {
+            if(audioPlayer.paused) {
+                audioPlayer.play();
             }
+            
+            recordedChunks = [];
+            // Capture Canvas stream at 30 or 60 frames per second
+            const canvasStream = canvas.captureStream(30);
+            
+            // Mix WebAudio output nodes to video stream track if possible
+            // For simple clients, we capture standard video tracks.
+            mediaRecorder = new MediaRecorder(canvasStream, {
+                mimeType: 'video/webm; codecs=vp9'
+            });
 
-            function renderMarketTables() {
-                const searchVal = document.getElementById('merchant-search').value.toLowerCase();
-                const payMethod = document.getElementById('payment-filter').value;
-                const sortingProfile = document.getElementById('market-sort').value;
-
-                function refineCollection(collection) {
-                    let out = collection.filter(item => {
-                        const matchesMerchant = item.adv.name.toLowerCase().includes(searchVal);
-                        const matchesPayment = payMethod === 'ALL' || item.adDetail.paymentMethods.some(p => p.tradeMethodName.includes(payMethod));
-                        return matchesMerchant && matchesPayment;
-                    });
-
-                    if(sortingProfile === 'price-asc') out.sort((a,b) => a.adDetail.price - b.adDetail.price);
-                    else if(sortingProfile === 'price-desc') out.sort((a,b) => b.adDetail.price - a.adDetail.price);
-                    else if(sortingProfile === 'completion') out.sort((a,b) => b.adv.monthFinishRate - a.adv.monthFinishRate);
-                    return out;
+            mediaRecorder.ondataavailable = function(e) {
+                if (e.data.size > 0) {
+                    recordedChunks.push(e.data);
                 }
+            };
 
-                fillTable('buy-ads-tbody', refineCollection(activeBuyAds), 'Buy USDT', 'buy-action');
-                fillTable('sell-ads-tbody', refineCollection(activeSellAds), 'Sell USDT', 'sell-action');
-            }
-
-            function fillTable(tbodyId, dataList, actionText, actionClass) {
-                const tbody = document.getElementById(tbodyId);
-                tbody.innerHTML = '';
-                if(dataList.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:20px;">No matching ads found.</td></tr>`;
-                    return;
-                }
-
-                dataList.forEach(item => {
-                    const tr = document.createElement('tr');
-                    const payments = item.adDetail.paymentMethods.map(p => `<span class="badge">${p.tradeMethodName}</span>`).join(' ');
-                    
-                    tr.innerHTML = `
-                        <td>
-                            <div class="merchant-badge">
-                                <span class="status-dot ${item.adv.isOnline ? 'online' : 'offline'}"></span>
-                                <span class="merchant-name">${item.adv.name}</span>
-                            </div>
-                            <span class="merchant-stats">${item.adv.monthOrderCount} trades | ${item.adv.monthFinishRate}% rate</span>
-                        </td>
-                        <td style="font-size:0.95rem;font-weight:700;" class="${actionClass === 'buy-action' ? 'text-green' : 'text-red'}">
-                            ${parseFloat(item.adDetail.price).toFixed(2)} <span style="font-size:0.7rem;color:var(--text-secondary)">NPR</span>
-                        </td>
-                        <td>
-                            <div>Avbl: <strong>${parseFloat(item.adDetail.availableAmount).toFixed(2)} USDT</strong></div>
-                            <div style="color:var(--text-secondary);font-size:0.7rem;">Limits: Min ${item.adDetail.minSingleTransAmount} - Max ${item.adDetail.maxSingleTransAmount} NPR</div>
-                        </td>
-                        <td>${payments}</td>
-                        <td><button class="order-btn ${actionClass}">${actionText}</button></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-
-            async function exportCSV() {
-                const currentData = await StorageSystem.getHistory(selectedCategory);
-                if(currentData.length === 0) return alert("No history profile blocks available to parse.");
+            mediaRecorder.onstop = function() {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const videoURL = URL.createObjectURL(blob);
                 
-                let csvContent = "data:text/csv;charset=utf-8,Timestamp,BuyPrice,SellPrice,Spread\n";
-                currentData.forEach(row => {
-                    csvContent += `${new Date(row.timestamp).toISOString()},${row.buyPrice},${row.sellPrice},${row.spread}\n`;
-                });
+                // Create a temporary downlaod link
+                const downloadLink = document.createElement('a');
+                downloadLink.href = videoURL;
+                downloadLink.download = `Visualizer_Output_${Date.now()}.webm`;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
                 
-                const dataUri = encodeURI(csvContent);
-                const link = document.createElement("a");
-                link.setAttribute("href", dataUri);
-                link.setAttribute("download", `p2p_npr_history_tier_${selectedCategory}.csv`);
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
+                statusText.textContent = "Video Exported Successfully!";
+                statusText.classList.remove('recording-active');
+            };
+
+            mediaRecorder.start();
+            statusText.textContent = "🔴 RECORDING ACTIVE... Let the music play.";
+            statusText.classList.add('recording-active');
+            
+            btnRecord.disabled = true;
+            btnStop.disabled = false;
+        });
+
+        btnStop.addEventListener('click', function() {
+            if(mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                audioPlayer.pause();
+                btnRecord.disabled = false;
+                btnStop.disabled = true;
             }
-
-            function init() {
-                setupFiltersUI();
-                DashboardChart.init();
-                
-                document.getElementById('export-csv').addEventListener('click', exportCSV);
-                document.getElementById('merchant-search').addEventListener('input', renderMarketTables);
-                document.getElementById('payment-filter').addEventListener('change', renderMarketTables);
-                document.getElementById('market-sort').addEventListener('change', renderMarketTables);
-
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                        btn.classList.add('active');
-                        document.getElementById(btn.dataset.tab).classList.add('active');
-                    });
-                });
-
-                document.getElementById('theme-toggle').addEventListener('click', () => {
-                    document.body.classList.toggle('light-theme');
-                });
-
-                // Initialize processes and target infinite loop background sync arrays
-                refreshSelectedContextView();
-                startGlobalScannerLoop();
-            }
-
-            return { init };
-        })();
-
-        // ==========================================
-        // 5. BOOTSTRAP INITIALIZER
-        // ==========================================
-        window.addEventListener('DOMContentLoaded', async () => {
-            await StorageSystem.init();
-            TerminalApp.init();
         });
     </script>
 </body>
