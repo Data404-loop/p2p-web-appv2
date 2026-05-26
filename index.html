@@ -3,532 +3,656 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All-in-One Audio Visualizer & Video Exporter</title>
+    <title>Ultimate Audio Visualizer Suite - Cinematic HD</title>
     <style>
         :root {
-            --bg-color: #0b0c10;
-            --container-bg: #1f2833;
-            --accent-color: #66fcf1;
-            --text-color: #c5c6c7;
+            --bg-deep: #050508;
+            --panel-bg: rgba(20, 24, 35, 0.85);
+            --neon-glow: #00f2fe;
+            --accent-pink: #4facfe;
+            --text-main: #f1f3f5;
         }
 
         body {
             margin: 0;
             padding: 0;
-            background-color: var(--bg-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--text-color);
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at 50% 50%, #141923 0%, #050508 100%);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         header {
             text-align: center;
-            margin: 20px 0;
+            margin: 25px 0 15px 0;
         }
 
         header h1 {
             margin: 0;
-            color: var(--accent-color);
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            background: linear-gradient(45deg, #00f2fe, #4facfe, #0000ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
-        .main-container {
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-            width: 90%;
-            max-width: 1200px;
-            background: var(--container-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            margin-bottom: 30px;
+        header p {
+            margin: 5px 0 0 0;
+            color: #6c7a89;
+            font-size: 0.95rem;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 25px;
+            width: 95%;
+            max-width: 1400px;
+            margin-bottom: 40px;
         }
 
         .control-panel {
-            flex: 1;
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            height: fit-content;
         }
 
-        .visualizer-panel {
-            flex: 2;
+        .studio-screen {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            gap: 20px;
+        }
+
+        .canvas-wrapper {
             position: relative;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        label {
-            font-weight: bold;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        input[type="file"], select, button {
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #45f3ff;
-            background: #0b0c10;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover, select:hover {
-            background: var(--accent-color);
-            color: #000;
-            font-weight: bold;
-            box-shadow: 0 0 10px var(--accent-color);
-        }
-
-        button:disabled {
-            background: #333;
-            color: #777;
-            border-color: #555;
-            cursor: not-allowed;
-            box-shadow: none;
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0, 242, 254, 0.15);
+            border: 1px solid rgba(0, 242, 254, 0.2);
         }
 
         canvas {
             width: 100%;
-            aspect-ratio: 16/9;
+            height: 100%;
+            display: block;
             background: #000;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8a99ad;
+        }
+
+        input[type="file"], select, button {
+            background: rgba(11, 12, 16, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
             border-radius: 8px;
-            border: 2px solid #45f3ff;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            background: var(--accent-pink);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+
+        select:hover, input[type="file"]:hover {
+            border-color: var(--neon-glow);
+        }
+
+        .btn-prime {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            border: none;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .btn-prime:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.4);
+        }
+
+        .btn-danger {
+            background: #ff0055;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #252830;
+            color: #565b66;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         audio {
             width: 100%;
-            margin-top: 15px;
+            border-radius: 30px;
+            background: #141923;
         }
 
-        .status {
-            font-size: 14px;
-            color: #ff4545;
-            font-weight: bold;
-            margin-top: 5px;
+        .status-badge {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
             text-align: center;
+            border-left: 4px solid #565b66;
         }
 
-        .recording-active {
-            animation: pulse 1s infinite alternate;
-            color: #ff0043 !important;
+        .recording {
+            border-left-color: #ff0055;
+            color: #ff0055;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-            from { opacity: 0.5; }
-            to { opacity: 1; }
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
         }
 
-        @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
-            }
+        @media(max-width: 900px) {
+            .workspace { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Pro Audio Visualizer</h1>
-        <p>Upload Audio → Select Style → Export Video</p>
+        <h1>Pro Cinematic Visualizer</h1>
+        <p>15 Signature Templates with Cover Art & High FPS WebM Video Exporter</p>
     </header>
 
-    <div class="main-container">
-        <!-- Left Side Controls -->
+    <div class="workspace">
+        <!-- Control Panel -->
         <div class="control-panel">
-            <div class="input-group">
-                <label for="audioFile">1. Upload Audio (MP3/WAV)</label>
-                <input type="file" id="audioFile" accept="audio/*">
+            <div class="field-group">
+                <label>1. Audio Track</label>
+                <input type="file" id="audioUpload" accept="audio/*">
             </div>
 
-            <div class="input-group">
-                <label for="visualizerStyle">2. Select Visualizer Style (15 Styles)</label>
-                <select id="visualizerStyle">
-                    <option value="1">1. Classic Frequency Bars</option>
-                    <option value="2">2. Center Circular Pulse</option>
-                    <option value="3">3. Dual Waveform (Line)</option>
-                    <option value="4">4. Retro Neon Equalizer</option>
-                    <option value="5">5. Exploding Particle Ring</option>
-                    <option value="6">6. Smooth Liquid Wave</option>
-                    <option value="7">7. Floating Bubble Spectrum</option>
-                    <option value="8">8. Double-Sided Tunnel</option>
-                    <option value="9">9. Starburst DNA Matrix</option>
-                    <option value="10">10. Cyberpunk Block Grid</option>
-                    <option value="11">11. Abstract Geometric Poly</option>
-                    <option value="12">12. Heartbeat Pulse Line</option>
-                    <option value="13">13. Laser Beam Scanner</option>
-                    <option value="14">14. Matrix Rain Audio Drops</option>
-                    <option value="15">15. Golden Luxury Ripple</option>
+            <div class="field-group">
+                <label>2. Cover Art / Picture</label>
+                <input type="file" id="imageUpload" accept="image/*">
+            </div>
+
+            <div class="field-group">
+                <label>3. Premium Template Style</label>
+                <select id="templateStyle">
+                    <option value="1">✨ 1. Cyber-Ring Center Art</option>
+                    <option value="2">✨ 2. Glitch Matrix Bars</option>
+                    <option value="3">✨ 3. Vinyl Record Spin Mirror</option>
+                    <option value="4">✨ 4. Floating Photo Bubble Nebula</option>
+                    <option value="5">✨ 5. Double-Horizon Soundwave</option>
+                    <option value="6">✨ 6. Luxury Liquid Gold Gate</option>
+                    <option value="7">✨ 7. Geometric Kaleidoscope Neon</option>
+                    <option value="8">✨ 8. Pulsing DNA Starburst Ring</option>
+                    <option value="9">✨ 9. Ambient Audio Tunnel Radar</option>
+                    <option value="10">✨ 10. Cyberpunk Grid Scanner</option>
+                    <option value="11">✨ 11. Minimalist Waveform String</option>
+                    <option value="12">✨ 12. Dual-Sided Equalizer Columns</option>
+                    <option value="13">✨ 13. Digital Rain Matrix Fallout</option>
+                    <option value="14">✨ 14. Heartbeat Neon Laser Strike</option>
+                    <option value="15">✨ 15. Diamond Crown Poly Lattice</option>
                 </select>
             </div>
 
-            <div class="input-group">
-                <label for="colorTheme">3. Color Accent</label>
+            <div class="field-group">
+                <label>4. Neon Accent Theme</label>
                 <select id="colorTheme">
-                    <option value="cyan">Neon Cyan</option>
-                    <option value="gold">Luxury Gold</option>
-                    <option value="magenta">Cyber Pink</option>
-                    <option value="matrix">Digital Green</option>
-                    <option value="rainbow">Dynamic Rainbow</option>
+                    <option value="cyan">Electric Cyan & Magenta</option>
+                    <option value="gold">Luxury Royal Gold</option>
+                    <option value="sunset">Fiery Sunset Orange</option>
+                    <option value="emerald">Ghostly Matrix Emerald</option>
+                    <option value="spectral">Fluid Rainbow Spectrum</option>
                 </select>
             </div>
 
-            <hr style="border-color: #333; margin: 10px 0;">
+            <div id="statusBox" class="status-badge">Ready: Upload Audio to Activate Engines.</div>
 
-            <button id="btnRecord" disabled>🔴 Start Recording Video</button>
-            <button id="btnStop" disabled>⏹️ Stop & Export Video</button>
-            
-            <div id="statusText" class="status">Upload an audio to start</div>
+            <button id="startRecordBtn" class="btn-prime" disabled>🔴 Start Video Export</button>
+            <button id="stopRecordBtn" class="btn-danger" disabled>⏹️ Stop & Save Video</button>
         </div>
 
-        <!-- Right Side Player and Screen -->
-        <div class="visualizer-panel">
-            <canvas id="visualizerCanvas" width="1280" height="720"></canvas>
-            <audio id="audioPlayer" controls></audio>
+        <!-- Visualizer Space -->
+        <div class="studio-screen">
+            <div class="canvas-wrapper">
+                <canvas id="canvas" width="1920" height="1080"></canvas>
+            </div>
+            <audio id="audio" controls></audio>
         </div>
     </div>
 
     <script>
-        const audioFile = document.getElementById('audioFile');
-        const audioPlayer = document.getElementById('audioPlayer');
-        const canvas = document.getElementById('visualizerCanvas');
+        const audioInput = document.getElementById('audioUpload');
+        const imageInput = document.getElementById('imageUpload');
+        const audio = document.getElementById('audio');
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const styleSelect = document.getElementById('visualizerStyle');
+        const styleSelect = document.getElementById('templateStyle');
         const themeSelect = document.getElementById('colorTheme');
-        const btnRecord = document.getElementById('btnRecord');
-        const btnStop = document.getElementById('btnStop');
-        const statusText = document.getElementById('statusText');
+        const startBtn = document.getElementById('startRecordBtn');
+        const stopBtn = document.getElementById('stopRecordBtn');
+        const statusBox = document.getElementById('statusBox');
 
         let audioCtx, analyser, source, bufferLength, dataArray;
-        let animationFrameId;
-        let mediaRecorder;
-        let recordedChunks = [];
-        let globalRotation = 0;
+        let coverImg = new Image();
+        let isImgLoaded = false;
+        let globalSpin = 0;
+        let mediaRecorder, recordedChunks = [];
 
-        // Colors setup
-        function getColor(index, total, theme) {
-            if (theme === 'cyan') return `hsl(180, 100%, ${50 + (index/total)*20}%)`;
-            if (theme === 'gold') return `hsl(45, 100%, ${40 + (index/total)*30}%)`;
-            if (theme === 'magenta') return `hsl(320, 100%, ${50 + (index/total)*20}%)`;
-            if (theme === 'matrix') return `hsl(120, 100%, ${40 + (index/total)*20}%)`;
-            if (theme === 'rainbow') return `hsl(${(index/total) * 360}, 100%, 50%)`;
-            return '#66fcf1';
+        // Default placeholder center graphics if user didn't upload image
+        function createPlaceholderImage() {
+            canvas.style.letterSpacing = 'normal'; 
+            coverImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%2311141a'/><text x='50%25' y='53%25' dominant-baseline='middle' text-anchor='middle' fill='%2300f2fe' font-size='8' font-family='sans-serif'>MUSIC ART</text></svg>";
+            coverImg.onload = () => { isImgLoaded = true; };
         }
+        createPlaceholderImage();
 
-        // Handle Audio Upload
-        audioFile.addEventListener('change', function() {
-            const files = this.files;
-            if(files.length === 0) return;
-            
-            const fileURL = URL.createObjectURL(files[0]);
-            audioPlayer.src = fileURL;
-            
-            statusText.textContent = "Audio Loaded! Press Play or Start Recording.";
-            statusText.style.color = "#66fcf1";
-            btnRecord.disabled = false;
-            
-            setupAudioContext();
+        // Handle Image Upload
+        imageInput.addEventListener('change', function() {
+            if(this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    coverImg.src = e.target.result;
+                    coverImg.onload = () => { isImgLoaded = true; };
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
         });
 
-        function setupAudioContext() {
-            if (audioCtx) return; // Prevent duplicating context
+        // Handle Audio Setup
+        audioInput.addEventListener('change', function() {
+            if(!this.files[0]) return;
+            audio.src = URL.createObjectURL(this.files[0]);
+            statusBox.textContent = "Engine Ready. Tap Play or Export Video!";
+            statusBox.style.borderLeftColor = "#00f2fe";
+            startBtn.disabled = false;
+            initAudioContext();
+        });
+
+        function initAudioContext() {
+            if(audioCtx) return;
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioCtx.createAnalyser();
-            source = audioCtx.createMediaElementSource(audioPlayer);
+            source = audioCtx.createMediaElementSource(audio);
             source.connect(analyser);
             analyser.connect(audioCtx.destination);
-            analyser.fftSize = 512; 
+            analyser.fftSize = 512;
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Uint8Array(bufferLength);
-            
-            draw();
+            renderLoop();
         }
 
-        // 15 Visualizer Rendering Logic
-        function draw() {
-            animationFrameId = requestAnimationFrame(draw);
+        // Color Management
+        function themeEngine(index, max, mode) {
+            const currentTheme = themeSelect.value;
+            let h;
+            if (currentTheme === 'cyan') h = (mode === 'alt') ? 310 : 185;
+            else if (currentTheme === 'gold') h = (mode === 'alt') ? 25 : 48;
+            else if (currentTheme === 'sunset') h = (mode === 'alt') ? 350 : 18;
+            else if (currentTheme === 'emerald') h = (mode === 'alt') ? 160 : 115;
+            else if (currentTheme === 'spectral') return `hsl(${(index/max)*360}, 100%, 55%)`;
+            
+            return `hsl(${h}, 100%, ${45 + (index/max)*25}%)`;
+        }
+
+        // Render Matrix Loop
+        function renderLoop() {
+            requestAnimationFrame(renderLoop);
             if(!analyser) return;
 
             analyser.getByteFrequencyData(dataArray);
-            
-            const WIDTH = canvas.width;
-            const HEIGHT = canvas.height;
+            const W = canvas.width;
+            const H = canvas.height;
             const style = styleSelect.value;
-            const theme = themeSelect.value;
+            
+            // Background Layer Architecture
+            ctx.fillStyle = "rgba(5, 5, 8, 0.18)";
+            ctx.fillRect(0, 0, W, H);
 
-            // Background Fill (with slight opacity for motion blur trail)
-            ctx.fillStyle = "rgba(11, 12, 16, 0.2)";
-            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            // Audio Math Metrics
+            let energySum = 0;
+            for(let i=0; i<bufferLength; i++) energySum += dataArray[i];
+            let avgEnergy = energySum / bufferLength; // Master variable for bass pulse
+            
+            globalSpin += 0.003 + (avgEnergy * 0.0001);
 
-            globalRotation += 0.002; // Dynamic slow spin for circular modes
+            // Draw Background Blurred Template Picture for Ambience Look
+            if(isImgLoaded && ["1", "3", "4", "6", "9", "15"].includes(style)) {
+                ctx.save();
+                ctx.globalAlpha = 0.06 + (avgEnergy * 0.0005);
+                ctx.filter = "blur(20px)";
+                ctx.drawImage(coverImg, W/2 - 600, H/2 - 600, 1200, 1200);
+                ctx.restore();
+            }
 
-            switch (style) {
-                case "1": // Classic Frequency Bars
-                    let barWidth = (WIDTH / bufferLength) * 1.5;
-                    let barHeight;
-                    let x = 0;
-                    for (let i = 0; i < bufferLength; i++) {
-                        barHeight = dataArray[i] * 2.2;
-                        ctx.fillStyle = getColor(i, bufferLength, theme);
-                        ctx.fillRect(x, HEIGHT - barHeight, barWidth - 2, barHeight);
-                        x += barWidth;
-                    }
-                    break;
-
-                case "2": // Center Circular Pulse
+            switch(style) {
+                case "1": // Cyber-Ring Center Art
+                    drawCenterPicture(W/2, H/2, 220 + (avgEnergy*0.4));
                     ctx.save();
-                    ctx.translate(WIDTH / 2, HEIGHT / 2);
-                    ctx.rotate(globalRotation);
-                    for (let i = 0; i < bufferLength; i++) {
-                        let angle = (i / bufferLength) * Math.PI * 2;
-                        let value = dataArray[i] * 1.2;
-                        let x1 = Math.cos(angle) * 150;
-                        let y1 = Math.sin(angle) * 150;
-                        let x2 = Math.cos(angle) * (150 + value);
-                        let y2 = Math.sin(angle) * (150 + value);
-                        ctx.strokeStyle = getColor(i, bufferLength, theme);
-                        ctx.lineWidth = 4;
+                    ctx.translate(W/2, H/2);
+                    ctx.rotate(globalSpin);
+                    for(let i=0; i<bufferLength; i++) {
+                        let angle = (i/bufferLength)*Math.PI*2;
+                        let val = dataArray[i]*1.4;
+                        ctx.strokeStyle = themeEngine(i, bufferLength);
+                        ctx.lineWidth = 5;
                         ctx.beginPath();
-                        ctx.moveTo(x1, y1);
-                        ctx.lineTo(x2, y2);
+                        ctx.moveTo(Math.cos(angle)*240, Math.sin(angle)*240);
+                        ctx.lineTo(Math.cos(angle)*(240+val), Math.sin(angle)*(240+val));
                         ctx.stroke();
                     }
                     ctx.restore();
                     break;
 
-                case "3": // Dual Waveform Line
+                case "2": // Glitch Matrix Bars
+                    let bW = (W / bufferLength) * 1.6;
+                    for(let i=0; i<bufferLength; i++) {
+                        let bH = dataArray[i] * 3.2;
+                        ctx.fillStyle = themeEngine(i, bufferLength);
+                        ctx.fillRect(i*bW, H - bH, bW - 4, bH);
+                        // Upper floating dots
+                        ctx.fillStyle = themeEngine(i, bufferLength, 'alt');
+                        ctx.fillRect(i*bW, H - bH - 12, bW - 4, 6);
+                    }
+                    break;
+
+                case "3": // Vinyl Record Spin Mirror
+                    ctx.save();
+                    ctx.translate(W/2, H/2);
+                    ctx.rotate(-globalSpin);
+                    drawCenterPicture(0, 0, 200, true); // Circular Cutout
+                    for(let i=0; i<bufferLength; i+=2) {
+                        let angle = (i/bufferLength)*Math.PI*2;
+                        let val = dataArray[i]*1.1;
+                        ctx.fillStyle = themeEngine(i, bufferLength);
+                        ctx.beginPath();
+                        ctx.arc(Math.cos(angle)*(220+val), Math.sin(angle)*(220+val), 4 + val*0.05, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                    break;
+
+                case "4": // Floating Photo Bubble Nebula
+                    ctx.save();
+                    for(let i=0; i<bufferLength; i+=12) {
+                        let size = dataArray[i] * 1.2;
+                        let posX = (i/bufferLength)*W + 100;
+                        let posY = (H/2) - (dataArray[i]*0.8) + (Math.sin(globalSpin+i)*80);
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(posX, posY, size*0.5 + 20, 0, Math.PI*2);
+                        ctx.clip();
+                        ctx.globalAlpha = 0.4;
+                        ctx.drawImage(coverImg, posX - size*0.5 - 20, posY - size*0.5 - 20, size + 40, size + 40);
+                        ctx.restore();
+                        ctx.strokeStyle = themeEngine(i, bufferLength);
+                        ctx.lineWidth = 3;
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                    break;
+
+                case "5": // Double-Horizon Soundwave
                     ctx.beginPath();
-                    ctx.lineWidth = 5;
-                    ctx.strokeStyle = getColor(50, 100, theme);
-                    let sliceWidth = WIDTH / bufferLength;
-                    let lineX = 0;
-                    for (let i = 0; i < bufferLength; i++) {
-                        let v = dataArray[i] / 128.0;
-                        let y = (v * HEIGHT / 2);
-                        if (i === 0) ctx.moveTo(lineX, y);
-                        else ctx.lineTo(lineX, y);
-                        lineX += sliceWidth;
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = themeEngine(128, 256);
+                    for(let i=0; i<bufferLength; i++) {
+                        let x = (i/bufferLength)*W;
+                        let y = (H/2) + (dataArray[i] - 128)*3;
+                        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
                     }
                     ctx.stroke();
                     break;
 
-                case "4": // Retro Neon Equalizer
-                    let blocks = 15;
-                    let blockW = WIDTH / bufferLength * 2;
-                    for (let i = 0; i < bufferLength; i += 2) {
-                        let val = Math.floor(dataArray[i] / 16);
-                        for (let j = 0; j < val; j++) {
-                            ctx.fillStyle = getColor(i, bufferLength, theme);
-                            ctx.fillRect(i * blockW, HEIGHT - (j * 45), blockW - 4, 35);
-                        }
-                    }
-                    break;
-
-                case "5": // Exploding Particle Ring
+                case "6": // Luxury Liquid Gold Gate
                     ctx.save();
-                    ctx.translate(WIDTH/2, HEIGHT/2);
-                    for(let i=0; i<bufferLength; i+=2) {
-                        let angle = (i/bufferLength) * Math.PI * 2;
-                        let distance = 100 + dataArray[i] * 1.5;
-                        let pX = Math.cos(angle) * distance;
-                        let pY = Math.sin(angle) * distance;
-                        ctx.fillStyle = getColor(i, bufferLength, theme);
-                        ctx.beginPath();
-                        ctx.arc(pX, pY, dataArray[i]*0.05 + 2, 0, Math.PI*2);
-                        ctx.fill();
-                    }
-                    ctx.restore();
-                    break;
-
-                case "6": // Smooth Liquid Wave
+                    ctx.translate(W/2, H/2);
+                    ctx.scale(1 + (avgEnergy*0.002), 1 + (avgEnergy*0.002));
+                    drawCenterPicture(0, 0, 180);
                     ctx.beginPath();
-                    ctx.fillStyle = getColor(20, 100, theme);
-                    ctx.moveTo(0, HEIGHT);
-                    for (let i = 0; i < bufferLength; i++) {
-                        let lY = HEIGHT - (dataArray[i] * 1.8) - 50;
-                        let lX = (i / bufferLength) * WIDTH * 1.2;
-                        ctx.lineTo(lX, lY);
-                    }
-                    ctx.lineTo(WIDTH, HEIGHT);
-                    ctx.fill();
-                    break;
-
-                case "7": // Floating Bubble Spectrum
-                    for (let i = 0; i < bufferLength; i += 8) {
-                        let size = dataArray[i] * 0.4;
-                        ctx.fillStyle = getColor(i, bufferLength, theme);
-                        ctx.globalAlpha = 0.3;
-                        ctx.beginPath();
-                        ctx.arc((i/bufferLength)*WIDTH + 50, HEIGHT/2 - (dataArray[i]*0.5), size, 0, Math.PI*2);
-                        ctx.fill();
-                        ctx.globalAlpha = 1.0;
-                    }
-                    break;
-
-                case "8": // Double-Sided Tunnel
-                    for (let i = 0; i < bufferLength; i++) {
-                        let h = dataArray[i] * 1.5;
-                        ctx.fillStyle = getColor(i, bufferLength, theme);
-                        ctx.fillRect((i*6), HEIGHT/2 - h/2, 4, h);
-                    }
-                    break;
-
-                case "9": // Starburst DNA Matrix
-                    ctx.save();
-                    ctx.translate(WIDTH/2, HEIGHT/2);
-                    ctx.rotate(-globalRotation * 2);
+                    ctx.lineWidth = 8;
+                    ctx.strokeStyle = themeEngine(100, 100);
                     for(let i=0; i<bufferLength; i++) {
-                        let size = dataArray[i]*0.8;
-                        ctx.strokeStyle = getColor(i, bufferLength, theme);
-                        ctx.strokeRect(-size/2, -size/2, size, size);
-                    }
-                    ctx.restore();
-                    break;
-
-                case "10": // Cyberpunk Block Grid
-                    let gridRows = 8;
-                    let gridCols = 16;
-                    let cellW = WIDTH / gridCols;
-                    let cellH = HEIGHT / gridRows;
-                    for (let r = 0; r < gridRows; r++) {
-                        for (let c = 0; c < gridCols; c++) {
-                            let index = (r * gridCols + c) % bufferLength;
-                            if (dataArray[index] > 120) {
-                                ctx.fillStyle = getColor(index, bufferLength, theme);
-                                ctx.fillRect(c * cellW + 2, r * cellH + 2, cellW - 4, cellH - 4);
-                            }
-                        }
-                    }
-                    break;
-
-                case "11": // Abstract Geometric Poly
-                    ctx.beginPath();
-                    ctx.strokeStyle = getColor(10, 100, theme);
-                    ctx.lineWidth = 2;
-                    for (let i = 0; i < bufferLength; i += 10) {
-                        let radius = dataArray[i] * 1.4;
-                        let xP = WIDTH/2 + Math.cos(i) * radius;
-                        let yP = HEIGHT/2 + Math.sin(i) * radius;
-                        ctx.lineTo(xP, yP);
+                        let r = 210 + dataArray[i]*1.2;
+                        let a = (i/bufferLength)*Math.PI*2;
+                        ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r);
                     }
                     ctx.closePath();
                     ctx.stroke();
+                    ctx.restore();
                     break;
 
-                case "12": // Heartbeat Pulse Line
-                    ctx.beginPath();
-                    ctx.lineWidth = 6;
-                    ctx.strokeStyle = '#ff0055';
-                    for(let i=0; i<bufferLength; i++) {
-                        let px = (i/bufferLength) * WIDTH;
-                        let py = (HEIGHT/2) + (dataArray[i] > 180 ? (Math.random() - 0.5)*dataArray[i] : 0);
-                        if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
-                    }
-                    ctx.stroke();
-                    break;
-
-                case "13": // Laser Beam Scanner
-                    let maxVal = Math.max(...dataArray);
-                    ctx.fillStyle = getColor(70, 100, theme);
-                    ctx.fillRect(0, HEIGHT - (maxVal*2.5), WIDTH, 8);
-                    ctx.shadowBlur = 20;
-                    ctx.shadowColor = getColor(70,100,theme);
-                    break;
-
-                case "14": // Matrix Rain Audio Drops
-                    for(let i=0; i<bufferLength; i+=4) {
-                        let speed = dataArray[i]*0.1;
-                        ctx.fillStyle = getColor(i, bufferLength, 'matrix');
-                        ctx.fillRect((i/bufferLength)*WIDTH, (dataArray[i]*2)%HEIGHT, 3, 20 + speed);
-                    }
-                    break;
-
-                case "15": // Golden Luxury Ripple
+                case "7": // Geometric Kaleidoscope Neon
                     ctx.save();
-                    ctx.translate(WIDTH/2, HEIGHT/2);
-                    for(let r=50; r<400; r+=50) {
-                        let energy = dataArray[Math.floor(r)%bufferLength] * 0.2;
-                        ctx.strokeStyle = getColor(r, 400, 'gold');
-                        ctx.lineWidth = 2 + energy;
+                    ctx.translate(W/2, H/2);
+                    for(let step=0; step<4; step++) {
+                        ctx.rotate(Math.PI / 2);
                         ctx.beginPath();
-                        ctx.arc(0, 0, r + energy, 0, Math.PI*2);
+                        ctx.strokeStyle = themeEngine(step, 4, 'alt');
+                        ctx.lineWidth = 3;
+                        for(let i=0; i<bufferLength; i+=8) {
+                            let dist = dataArray[i]*1.5;
+                            ctx.lineTo(i*2, dist);
+                        }
                         ctx.stroke();
                     }
                     ctx.restore();
                     break;
+
+                case "8": // Pulsing DNA Starburst Ring
+                    ctx.save();
+                    ctx.translate(W/2, H/2);
+                    ctx.rotate(globalSpin * 1.5);
+                    for(let i=0; i<bufferLength; i+=3) {
+                        let angle = (i/bufferLength)*Math.PI*2;
+                        let ext = dataArray[i]*1.6;
+                        ctx.strokeStyle = themeEngine(i, bufferLength);
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(Math.cos(angle)*100, Math.sin(angle)*100);
+                        ctx.lineTo(Math.cos(angle)*(150+ext), Math.sin(angle)*(150+ext));
+                        ctx.stroke();
+                        // Outer chain node
+                        ctx.fillStyle = themeEngine(i, bufferLength, 'alt');
+                        ctx.fillRect(Math.cos(angle)*(155+ext)-3, Math.sin(angle)*(155+ext)-3, 6, 6);
+                    }
+                    ctx.restore();
+                    break;
+
+                case "9": // Ambient Audio Tunnel Radar
+                    ctx.save();
+                    ctx.translate(W/2, H/2);
+                    for(let ring=1; ring<=5; ring++) {
+                        let index = Math.floor(ring * (bufferLength/6));
+                        let radius = (ring * 110) + (dataArray[index]*0.6);
+                        ctx.strokeStyle = themeEngine(index, bufferLength);
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.arc(0, 0, radius, 0, Math.PI*2);
+                        ctx.stroke();
+                    }
+                    drawCenterPicture(0,0, 100);
+                    ctx.restore();
+                    break;
+
+                case "10": // Cyberpunk Grid Scanner
+                    let cw = W/16;
+                    let ch = H/8;
+                    for(let r=0; r<8; r++) {
+                        for(let c=0; c<16; c++) {
+                            let idx = (r*16 + c)%bufferLength;
+                            if(dataArray[idx] > 140) {
+                                ctx.fillStyle = themeEngine(idx, bufferLength);
+                                ctx.shadowBlur = 15;
+                                ctx.shadowColor = ctx.fillStyle;
+                                ctx.fillRect(c*cw+5, r*ch+5, cw-10, ch-10);
+                            }
+                        }
+                    }
+                    ctx.shadowBlur = 0; // Performance preservation reset
+                    break;
+
+                case "11": // Minimalist Waveform String
+                    ctx.beginPath();
+                    ctx.lineWidth = 5;
+                    ctx.strokeStyle = themeEngine(50, 100);
+                    for(let i=0; i<bufferLength; i++) {
+                        let x = (i/bufferLength)*W;
+                        let y = (H/2) - (dataArray[i]*1.5) + 200;
+                        if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                    break;
+
+                case "12": // Dual-Sided Equalizer Columns
+                    let colW = W / (bufferLength / 2);
+                    for(let i=0; i<bufferLength/2; i++) {
+                        let size = dataArray[i]*1.8;
+                        ctx.fillStyle = themeEngine(i, bufferLength);
+                        // Top Down
+                        ctx.fillRect(i*colW, 0, colW-2, size);
+                        // Bottom Up
+                        ctx.fillRect(i*colW, H - size, colW-2, size);
+                    }
+                    break;
+
+                case "13": // Digital Rain Matrix Fallout
+                    for(let i=0; i<bufferLength; i+=6) {
+                        let pulseSpeed = dataArray[i]*0.15;
+                        ctx.fillStyle = themeEngine(i, bufferLength, 'alt');
+                        ctx.fillRect((i/bufferLength)*W, (dataArray[i]*4.5)%H, 4, 25 + pulseSpeed);
+                    }
+                    break;
+
+                case "14": // Heartbeat Neon Laser Strike
+                    ctx.beginPath();
+                    ctx.lineWidth = 8;
+                    ctx.strokeStyle = themeEngine(200, 256);
+                    for(let i=0; i<bufferLength; i++) {
+                        let hx = (i/bufferLength)*W;
+                        let hy = (H/2) + (dataArray[i] > 200 ? (Math.random() - 0.5)*dataArray[i]*2 : 0);
+                        if(i===0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+                    }
+                    ctx.stroke();
+                    break;
+
+                case "15": // Diamond Crown Poly Lattice
+                    ctx.save();
+                    ctx.translate(W/2, H/2);
+                    ctx.beginPath();
+                    ctx.strokeStyle = themeEngine(80, 100);
+                    ctx.lineWidth = 2;
+                    for(let i=0; i<bufferLength; i+=12) {
+                        let dRadius = 150 + dataArray[i]*1.3;
+                        let dx = Math.cos(i) * dRadius;
+                        let dy = Math.sin(i) * dRadius;
+                        ctx.lineTo(dx, dy);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+                    drawCenterPicture(0, 0, 130, true);
+                    ctx.restore();
+                    break;
             }
-            // Reset shadows to keep rendering performant
-            ctx.shadowBlur = 0;
         }
 
-        // VIDEO EXPORT / RECORDING LOGIC
-        btnRecord.addEventListener('click', function() {
-            if(audioPlayer.paused) {
-                audioPlayer.play();
+        // Helper: Complex Vector Picture Loader to Canvas Core
+        function drawCenterPicture(x, y, size, circleCut = false) {
+            if(!isImgLoaded) return;
+            ctx.save();
+            if(circleCut) {
+                ctx.beginPath();
+                ctx.arc(x, y, size/2, 0, Math.PI*2);
+                ctx.clip();
             }
-            
+            ctx.drawImage(coverImg, x - size/2, y - size/2, size, size);
+            ctx.restore();
+        }
+
+        // VIDEO HIGH FPS RECORDING INFRASTRUCTURE
+        startBtn.addEventListener('click', () => {
+            if(audio.paused) audio.play();
             recordedChunks = [];
-            // Capture Canvas stream at 30 or 60 frames per second
-            const canvasStream = canvas.captureStream(30);
             
-            // Mix WebAudio output nodes to video stream track if possible
-            // For simple clients, we capture standard video tracks.
-            mediaRecorder = new MediaRecorder(canvasStream, {
-                mimeType: 'video/webm; codecs=vp9'
+            // Capture HD stream at 60 FPS directly from standard matrix context
+            const stream = canvas.captureStream(60);
+            
+            mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'video/webm; codecs=vp9',
+                videoBitsPerSecond: 8000000 // 8 Mbps high density allocation
             });
 
-            mediaRecorder.ondataavailable = function(e) {
-                if (e.data.size > 0) {
-                    recordedChunks.push(e.data);
-                }
+            mediaRecorder.ondataavailable = (e) => {
+                if(e.data.size > 0) recordedChunks.push(e.data);
             };
 
-            mediaRecorder.onstop = function() {
-                const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                const videoURL = URL.createObjectURL(blob);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, {type: 'video/webm'});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Cinema_Visualizer_Output_${Date.now()}.webm`;
+                link.click();
                 
-                // Create a temporary downlaod link
-                const downloadLink = document.createElement('a');
-                downloadLink.href = videoURL;
-                downloadLink.download = `Visualizer_Output_${Date.now()}.webm`;
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-                
-                statusText.textContent = "Video Exported Successfully!";
-                statusText.classList.remove('recording-active');
+                statusBox.textContent = "Video Export Complete!";
+                statusBox.classList.remove('recording');
             };
 
             mediaRecorder.start();
-            statusText.textContent = "🔴 RECORDING ACTIVE... Let the music play.";
-            statusText.classList.add('recording-active');
-            
-            btnRecord.disabled = true;
-            btnStop.disabled = false;
+            statusBox.textContent = "🔴 RECORDING LIVE TO WEB-STREAM CONTAINER...";
+            statusBox.classList.add('recording');
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
         });
 
-        btnStop.addEventListener('click', function() {
+        stopBtn.addEventListener('click', () => {
             if(mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
-                audioPlayer.pause();
-                btnRecord.disabled = false;
-                btnStop.disabled = true;
+                audio.pause();
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
             }
         });
     </script>
