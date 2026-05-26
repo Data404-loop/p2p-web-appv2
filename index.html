@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binance P2P USDT/NPR Analytics Terminal</title>
+    <title>Binance P2P USDT/NPR Analytics Terminal (Global Background Scanner)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     
     <style>
-        /* CSS CORE ARCHITECTURE & STYLING VARIETIES */
+        /* CORE PROFESSIONAL DARK TRADING THEME UI */
         :root {
             --bg-main: #0b0e11;
             --bg-card: #181a20;
@@ -48,7 +48,6 @@
             padding-bottom: 40px;
         }
 
-        /* Scrollbar customization */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-main); }
         ::-webkit-scrollbar-thumb { background: var(--bg-input); border-radius: 4px; }
@@ -93,6 +92,21 @@
         .status-indicator.online { background: rgba(14, 203, 129, 0.12); color: var(--trade-green); }
         .status-indicator.fallback { background: rgba(252, 213, 53, 0.12); color: var(--binance-yellow); }
 
+        /* Global Dynamic Scanner Panel */
+        .scanner-status-panel {
+            background: rgba(24, 26, 32, 0.7);
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 24px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .scanner-title { color: var(--binance-yellow); font-weight: bold; display: flex; align-items: center; gap: 6px; }
+        .scanner-pulse { width: 6px; height: 6px; background-color: var(--binance-yellow); border-radius: 50%; animation: pulse 1.2s infinite; }
+
         /* Quick Analytics Ribbon */
         .analytics-bar {
             display: grid;
@@ -116,28 +130,37 @@
         .text-red { color: var(--trade-red); }
         .text-accent { color: var(--binance-yellow); }
 
-        /* Amount Filters Component */
+        /* Amount Filters Matrix Component with Live Data Sub-badges */
         .amount-filters-container { padding: 8px 24px; display: flex; flex-direction: column; gap: 8px; }
         .filter-title { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; }
-        .filters-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+        
         .filter-btn {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            border-radius: 4px;
+            padding: 8px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-align: center;
         }
         .filter-btn:hover { border-color: var(--binance-yellow); }
+        .filter-btn .btn-main-txt { font-weight: bold; font-size: 0.85rem; }
+        .filter-btn .btn-sub-txt { font-size: 0.68rem; color: var(--text-secondary); }
+        
         .filter-btn.active {
             background-color: var(--binance-yellow);
             color: #0b0e11;
-            font-weight: bold;
             border-color: var(--binance-yellow);
             box-shadow: 0 0 8px var(--accent-glow);
         }
+        .filter-btn.active .btn-sub-txt { color: #2b3139; font-weight: 500; }
+        .filter-btn.bg-updating { border-color: var(--trade-green); background: rgba(14, 203, 129, 0.05); }
 
         /* Interactive Tabs Navigation */
         .tab-navigation { display: flex; border-bottom: 1px solid var(--border-color); margin: 15px 24px 0 24px; gap: 8px; }
@@ -196,8 +219,7 @@
 
         /* Notification Toast popup overlay */
         .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: #1e2329; border-left: 4px solid var(--binance-yellow); padding: 12px 20px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 0.85rem; animation: slideIn 0.3s forwards; color: #fff; }
-        @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
+        .toast { background: #1e2329; border-left: 4px solid var(--binance-yellow); padding: 12px 20px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 0.85rem; color: #fff; }
 
         .app-footer { margin-top: 40px; background-color: var(--bg-card); border-top: 1px solid var(--border-color); padding: 20px; font-size: 0.75rem; color: var(--text-secondary); text-align: center; line-height: 1.6; }
     </style>
@@ -211,30 +233,27 @@
         </div>
         <div class="header-controls">
             <div class="control-group">
-                <label for="refresh-interval">Refresh Tracker:</label>
-                <select id="refresh-interval">
-                    <option value="5000">5s</option>
-                    <option value="10000" selected>10s</option>
-                    <option value="30000">30s</option>
-                </select>
-            </div>
-            <div class="control-group">
                 <label for="alert-threshold">Spread Alert (NPR):</label>
                 <input type="number" id="alert-threshold" value="1.5" step="0.1" style="width: 65px;">
             </div>
             <button id="theme-toggle" class="btn btn-secondary">🌓 Theme</button>
-            <button id="export-csv" class="btn btn-secondary">📥 Export Data</button>
+            <button id="export-csv" class="btn btn-secondary">📥 Export Active History</button>
             <div id="connection-status" class="status-indicator online">Connected</div>
         </div>
     </header>
 
+    <div class="scanner-status-panel">
+        <div class="scanner-title"><span class="scanner-pulse"></span> GLOBAL SCANNERS STREAMS:</div>
+        <div id="scanner-ticker-box" style="color: var(--text-secondary);">Initializing algorithmic multi-channel queue...</div>
+    </div>
+
     <section class="analytics-bar">
         <div class="stat-card">
-            <span class="stat-label">Highest BUY Price</span>
+            <span class="stat-label">Highest BUY Price (Selected)</span>
             <span id="stat-high-buy" class="stat-value text-green">--.-- NPR</span>
         </div>
         <div class="stat-card">
-            <span class="stat-label">Lowest SELL Price</span>
+            <span class="stat-label">Lowest SELL Price (Selected)</span>
             <span id="stat-low-sell" class="stat-value text-red">--.-- NPR</span>
         </div>
         <div class="stat-card">
@@ -242,17 +261,17 @@
             <span id="stat-spread" class="stat-value text-accent">--.-- NPR</span>
         </div>
         <div class="stat-card">
-            <span class="stat-label">Market Volatility Score</span>
+            <span class="stat-label">Volatility Index</span>
             <span id="stat-volatility" class="stat-value">--.--%</span>
         </div>
         <div class="stat-card">
-            <span class="stat-label">Arbitrage Spread Opportunity</span>
+            <span class="stat-label">Arbitrage Spread State</span>
             <span id="stat-arbitrage" class="stat-value text-green">SCANNING</span>
         </div>
     </section>
 
     <nav class="amount-filters-container">
-        <span class="filter-title">Filter Selection Profile (NPR Amount Bound):</span>
+        <span class="filter-title">Select Active Chart Profile (All Categories background sync constantly):</span>
         <div id="amount-filters" class="filters-grid"></div>
     </nav>
 
@@ -269,7 +288,7 @@
                         <span class="pulse-dot"></span>
                         <span class="panel-title">Aggregated P2P Price Execution Streams</span>
                     </div>
-                    <div class="last-updated" id="last-updated-text">Last Sync Status: Standby initialization</div>
+                    <div class="last-updated" id="last-updated-text">Last Sync Status: Active</div>
                 </div>
                 <div class="canvas-container">
                     <canvas id="analyticsChart"></canvas>
@@ -287,8 +306,8 @@
                     <option value="Bank Transfer">Bank Transfer</option>
                 </select>
                 <select id="market-sort">
-                    <option value="price-asc">Price: Ascending order</option>
-                    <option value="price-desc">Price: Descending order</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
                     <option value="completion">Completion Performance</option>
                 </select>
             </div>
@@ -336,12 +355,12 @@
     <div class="toast-container" id="toast-bin"></div>
 
     <footer class="app-footer">
-        <p>⚠️ <strong>Client-Side Engine Execution Disclaimer:</strong> Web browsers stop data collection tasks via `setInterval` if tabs are frozen or minimized. To archive multi-day histories without active browser tabs open, deploy a persistent server scraper configuration built using Cloudflare Workers or a VPS back-end runner orchestration engine.</p>
+        <p>⚠️ <strong>Client-Side Multi-Channel Engine Engine Disclaimer:</strong> This terminal runs automated round-robin background sync across all 18 limits categories every 2 seconds. Browsers restrict tasks if tabs are frozen or minimized. For permanent server metrics, offload to Cloudflare workers background collectors.</p>
     </footer>
 
     <script>
         // ==========================================
-        // 1. CLIENT STORAGE STORAGE MODULE (IndexedDB)
+        // 1. STORAGE MODULE (IndexedDB)
         // ==========================================
         const StorageSystem = (() => {
             const DB_NAME = 'p2pHistoryDB';
@@ -391,10 +410,9 @@
         })();
 
         // ==========================================
-        // 2. NETWORK CONTROLLER ENGINE (Binance Fetch & CORS Proxy Logic)
+        // 2. NETWORK CONTROLLER ENGINE (Binance Fetch & Proxy Logic)
         // ==========================================
         const BinanceAPI = (() => {
-            // Direct Endpoint is often blocked by Browser CORS profiles out-of-the-box
             const ENDPOINT = 'https://p2p.binance.com/bapi/cug/v1/p2p/capi/trade/search';
 
             async function fetchP2P(side, amount) {
@@ -412,7 +430,6 @@
                     const json = await response.json();
                     return json.data || [];
                 } catch(e) {
-                    // Fallback execution strategy layers on direct browser connection dropouts
                     document.getElementById('connection-status').className = "status-indicator fallback";
                     document.getElementById('connection-status').innerText = "Simulated API (CORS)";
                     return generateMockAds(side, amount);
@@ -421,12 +438,12 @@
 
             function generateMockAds(side, amount) {
                 const baseAmt = parseFloat(amount) || 500;
-                let seedPrice = 136.20 + (baseAmt / 120000);
-                if (side === 'SELL') seedPrice += 1.10;
+                let seedPrice = 136.20 + (Math.log10(baseAmt) * 0.45);
+                if (side === 'SELL') seedPrice += 0.95 + (Math.random() * 0.2);
 
                 const merchants = ["EverestCryptoOTC", "KathmanduEscrow", "HimalayaLiquidity", "Bagmati_USDT_Traders", "PokharaP2P_Merchant", "Lumbini_OTC", "SherpaFX"];
                 return merchants.map((m, idx) => {
-                    const variance = (side === 'BUY' ? -idx : idx) * 0.08 + (Math.random() * 0.03);
+                    const variance = (side === 'BUY' ? -idx : idx) * 0.05 + (Math.random() * 0.02);
                     const finalPrice = parseFloat((seedPrice + variance).toFixed(2));
                     return {
                         adv: { name: m, monthOrderCount: 450 + (idx*30), monthFinishRate: (95.4 + (Math.random()*4.2)).toFixed(2), isOnline: Math.random() > 0.15 },
@@ -456,15 +473,15 @@
                     type: 'line',
                     data: {
                         datasets: [
-                            { label: 'Top Buy Price', data: [], borderColor: '#0ecb81', backgroundColor: 'rgba(14, 203, 129, 0.05)', borderWidth: 2, pointRadius: 1, fill: true, tension: 0.15 },
-                            { label: 'Top Sell Price', data: [], borderColor: '#f6465d', backgroundColor: 'rgba(246, 70, 93, 0.05)', borderWidth: 2, pointRadius: 1, fill: true, tension: 0.15 }
+                            { label: 'Top Buy Price', data: [], borderColor: '#0ecb81', backgroundColor: 'rgba(14, 203, 129, 0.04)', borderWidth: 2, pointRadius: 2, fill: true, tension: 0.15 },
+                            { label: 'Top Sell Price', data: [], borderColor: '#f6465d', backgroundColor: 'rgba(246, 70, 93, 0.04)', borderWidth: 2, pointRadius: 2, fill: true, tension: 0.15 }
                         ]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            x: { type: 'time', time: { unit: 'minute', displayFormats: { minute: 'HH:mm' } }, grid: { color: '#2b3139' }, ticks: { color: '#848e9c' } },
+                            x: { type: 'time', time: { unit: 'second', displayFormats: { second: 'HH:mm:ss' } }, grid: { color: '#2b3139' }, ticks: { color: '#848e9c' } },
                             y: { grid: { color: '#2b3139' }, ticks: { color: '#848e9c' } }
                         },
                         plugins: { legend: { labels: { color: '#eaecef' } } }
@@ -485,25 +502,26 @@
         })();
 
         // ==========================================
-        // 4. CORE ENGINE ORCHESTRATION PIPELINE (State Management)
+        // 4. CORE PIPELINE ENGINES (Global Polling & State)
         // ==========================================
         const TerminalApp = (() => {
-            let currentCategory = '1000';
-            let updateIntervalId = null;
+            let selectedCategory = '1000';
+            let globalCategoryIndex = 0;
+            let scannerLoopId = null;
+            
             let activeBuyAds = [];
             let activeSellAds = [];
 
-            // Audio synthesis generation context node system for notification alerts
             function triggerAudioAlert() {
                 try {
                     const ctx = new (window.AudioContext || window.webkitAudioContext)();
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5 pitch signature
-                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(600, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
                     osc.connect(gain); gain.connect(ctx.destination);
-                    osc.start(); osc.stop(ctx.currentTime + 0.4);
+                    osc.start(); osc.stop(ctx.currentTime + 0.3);
                 } catch(e) {}
             }
 
@@ -517,23 +535,30 @@
                 setTimeout(() => element.remove(), 4000);
             }
 
-            function setupFilters() {
+            function setupFiltersUI() {
                 const container = document.getElementById('amount-filters');
+                container.innerHTML = '';
                 StorageSystem.categories.forEach(cat => {
                     const btn = document.createElement('button');
-                    btn.className = `filter-btn ${cat === currentCategory ? 'active' : ''}`;
-                    btn.innerText = `${cat}≤`;
+                    btn.id = `btn-node-${cat}`;
+                    btn.className = `filter-btn ${cat === selectedCategory ? 'active' : ''}`;
+                    
+                    btn.innerHTML = `
+                        <span class="btn-main-txt">${cat}≤</span>
+                        <span class="btn-sub-txt" id="badge-val-${cat}">--.--</span>
+                    `;
+
                     btn.addEventListener('click', () => {
                         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
-                        currentCategory = cat;
-                        syncPipelineContext();
+                        selectedCategory = cat;
+                        refreshSelectedContextView();
                     });
                     container.appendChild(btn);
                 });
             }
 
-            function processAnalyticalMetrics(history) {
+            function updateGlobalMetricsPanel(history) {
                 if(history.length === 0) return;
                 const latest = history[history.length - 1];
                 
@@ -541,59 +566,101 @@
                 document.getElementById('stat-low-sell').innerText = `${latest.sellPrice.toFixed(2)} NPR`;
                 document.getElementById('stat-spread').innerText = `${latest.spread.toFixed(2)} NPR`;
 
-                // Volatility indexing tracking math
                 const buys = history.map(h => h.buyPrice);
                 const maxB = Math.max(...buys), minB = Math.min(...buys);
                 const variancePct = (((maxB - minB) / (minB || 1)) * 100).toFixed(3);
                 document.getElementById('stat-volatility').innerText = `${variancePct}%`;
 
-                // Arbitrage identification engine boundaries
                 const triggerThreshold = parseFloat(document.getElementById('alert-threshold').value) || 1.5;
                 const arbSignalNode = document.getElementById('stat-arbitrage');
+                
                 if(latest.spread >= triggerThreshold) {
-                    arbSignalNode.innerText = "🚨 HIGH SPREAD";
+                    arbSignalNode.innerText = "🚨 ARBITRAGE ALERT";
                     arbSignalNode.style.color = "var(--trade-green)";
-                    pushNotification(`Market alert spread breach on Category ${currentCategory} NPR! Value: ${latest.spread} NPR`);
                 } else {
-                    arbSignalNode.innerText = "NORMAL PREPARATION";
+                    arbSignalNode.innerText = "SCANNING STATE";
                     arbSignalNode.style.color = "var(--text-secondary)";
                 }
             }
 
-            async function syncPipelineContext() {
-                // Instantly update chart display profiles from local client history archives
-                const localHistory = await StorageSystem.getHistory(currentCategory);
-                DashboardChart.render(localHistory);
-                processAnalyticalMetrics(localHistory);
+            // [CRITICAL FEATURE] Global Infinite Round-Robin Background Engine
+            async function startGlobalScannerLoop() {
+                const categories = StorageSystem.categories;
+                
+                const processNextCategory = async () => {
+                    const targetCat = categories[globalCategoryIndex];
+                    
+                    // UI status indicators showing visual feedback of current processing category
+                    document.getElementById('scanner-ticker-box').innerText = `Syncing ledger stream node values for threshold tier allocation: NPR ${targetCat}`;
+                    const targetBtnNode = document.getElementById(`btn-node-${targetCat}`);
+                    if(targetBtnNode) targetBtnNode.classList.add('bg-updating');
 
-                // Populate UI skeleton frameworks before network requests complete
+                    // Non-blocking asynchronous ingestion processing requests
+                    const [buys, sells] = await Promise.all([
+                        BinanceAPI.fetchP2P('BUY', targetCat),
+                        BinanceAPI.fetchP2P('SELL', targetCat)
+                    ]);
+
+                    if(targetBtnNode) targetBtnNode.classList.remove('bg-updating');
+
+                    if(buys.length > 0 && sells.length > 0) {
+                        const topBuy = buys[0].adDetail.price;
+                        const topSell = sells[0].adDetail.price;
+                        const spreadDelta = parseFloat((topSell - topBuy).toFixed(2));
+                        
+                        // Commit record mutations straight into client database repository
+                        StorageSystem.saveRecord(targetCat, topBuy, topSell, spreadDelta);
+                        
+                        // Dynamically inject data values into filter matrix sub-labels in real-time
+                        const badgeNode = document.getElementById(`badge-val-${targetCat}`);
+                        if(badgeNode) {
+                            badgeNode.innerText = `B:${topBuy.toFixed(1)} / S:${topSell.toFixed(1)}`;
+                        }
+
+                        // System alert threshold triggers validation checks
+                        const triggerThreshold = parseFloat(document.getElementById('alert-threshold').value) || 1.5;
+                        if (spreadDelta >= triggerThreshold) {
+                            pushNotification(`[Spread Breach] Category ${targetCat} NPR matched high spread value: ${spreadDelta} NPR`);
+                        }
+
+                        // If background compiler updates current selected profile, force redraw view components instantly
+                        if(targetCat === selectedCategory) {
+                            activeBuyAds = buys;
+                            activeSellAds = sells;
+                            const updatedHistory = await StorageSystem.getHistory(selectedCategory);
+                            DashboardChart.render(updatedHistory);
+                            updateGlobalMetricsPanel(updatedHistory);
+                            renderMarketTables();
+                            document.getElementById('last-updated-text').innerText = `Last Sync Status: ${new Date().toLocaleTimeString()}`;
+                        }
+                    }
+
+                    // Increment sequence pointers infinitely
+                    globalCategoryIndex = (globalCategoryIndex + 1) % categories.length;
+                    
+                    // Interval between category checks (2000ms = high performance continuous background sync)
+                    scannerLoopId = setTimeout(processNextCategory, 2000);
+                };
+
+                processNextCategory();
+            }
+
+            async function refreshSelectedContextView() {
+                const localHistory = await StorageSystem.getHistory(selectedCategory);
+                DashboardChart.render(localHistory);
+                updateGlobalMetricsPanel(localHistory);
+
                 document.getElementById('buy-ads-tbody').innerHTML = `<tr class="skeleton-row"><td></td><td></td><td></td><td></td><td></td></tr>`;
                 document.getElementById('sell-ads-tbody').innerHTML = `<tr class="skeleton-row"><td></td><td></td><td></td><td></td><td></td></tr>`;
 
-                // Query network engine parallel streams for data
                 const [buys, sells] = await Promise.all([
-                    BinanceAPI.fetchP2P('BUY', currentCategory),
-                    BinanceAPI.fetchP2P('SELL', currentCategory)
+                    BinanceAPI.fetchP2P('BUY', selectedCategory),
+                    BinanceAPI.fetchP2P('SELL', selectedCategory)
                 ]);
 
                 activeBuyAds = buys;
                 activeSellAds = sells;
-
-                // Process internal core records updates if array responses contain elements
-                if(buys.length > 0 && sells.length > 0) {
-                    const topBuy = buys[0].adDetail.price;
-                    const topSell = sells[0].adDetail.price;
-                    const spreadDelta = parseFloat((topSell - topBuy).toFixed(2));
-                    
-                    StorageSystem.saveRecord(currentCategory, topBuy, topSell, spreadDelta);
-                    
-                    const refreshedHistory = await StorageSystem.getHistory(currentCategory);
-                    DashboardChart.render(refreshedHistory);
-                    processAnalyticalMetrics(refreshedHistory);
-                }
-
                 renderMarketTables();
-                document.getElementById('last-updated-text').innerText = `Last Sync Status: ${new Date().toLocaleTimeString()}`;
             }
 
             function renderMarketTables() {
@@ -601,73 +668,60 @@
                 const payMethod = document.getElementById('payment-filter').value;
                 const sortingProfile = document.getElementById('market-sort').value;
 
-                function refineCollection(collection, side) {
+                function refineCollection(collection) {
                     let out = collection.filter(item => {
                         const matchesMerchant = item.adv.name.toLowerCase().includes(searchVal);
                         const matchesPayment = payMethod === 'ALL' || item.adDetail.paymentMethods.some(p => p.tradeMethodName.includes(payMethod));
                         return matchesMerchant && matchesPayment;
                     });
 
-                    if(sortingProfile === 'price-asc') {
-                        out.sort((a,b) => a.adDetail.price - b.adDetail.price);
-                    } else if(sortingProfile === 'price-desc') {
-                        out.sort((a,b) => b.adDetail.price - a.adDetail.price);
-                    } else if(sortingProfile === 'completion') {
-                        out.sort((a,b) => b.adv.monthFinishRate - a.adv.monthFinishRate);
-                    }
+                    if(sortingProfile === 'price-asc') out.sort((a,b) => a.adDetail.price - b.adDetail.price);
+                    else if(sortingProfile === 'price-desc') out.sort((a,b) => b.adDetail.price - a.adDetail.price);
+                    else if(sortingProfile === 'completion') out.sort((a,b) => b.adv.monthFinishRate - a.adv.monthFinishRate);
                     return out;
                 }
 
-                const finalBuys = refineCollection(activeBuyAds, 'BUY');
-                const finalSells = refineCollection(activeSellAds, 'SELL');
-
-                function fillTable(tbodyId, dataList, actionText, actionClass) {
-                    const tbody = document.getElementById(tbodyId);
-                    tbody.innerHTML = '';
-                    if(dataList.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">No execution orders matching criteria filters.</td></tr>`;
-                        return;
-                    }
-
-                    dataList.forEach(item => {
-                        const tr = document.createElement('tr');
-                        const payments = item.adDetail.paymentMethods.map(p => `<span class="badge">${p.tradeMethodName}</span>`).join(' ');
-                        
-                        tr.innerHTML = `
-                            <td>
-                                <div class="merchant-badge">
-                                    <span class="status-dot ${item.adv.isOnline ? 'online' : 'offline'}"></span>
-                                    <span class="merchant-name">${item.adv.name}</span>
-                                </div>
-                                <span class="merchant-stats">${item.adv.monthOrderCount} trades | ${item.adv.monthFinishRate}% completion</span>
-                            </td>
-                            <td style="font-size:1rem;font-weight:700;" class="${actionClass === 'buy-action' ? 'text-green' : 'text-red'}">
-                                ${parseFloat(item.adDetail.price).toFixed(2)} <span style="font-size:0.7rem;color:var(--text-secondary)">NPR</span>
-                            </td>
-                            <td>
-                                <div style="color:var(--text-primary)">Avbl: <strong>${parseFloat(item.adDetail.availableAmount).toFixed(2)} USDT</strong></div>
-                                <div style="color:var(--text-secondary);font-size:0.7rem;">Limit: Min ${item.adDetail.minSingleTransAmount} - Max ${item.adDetail.maxSingleTransAmount} NPR</div>
-                            </td>
-                            <td>${payments}</td>
-                            <td><button class="order-btn ${actionClass}">${actionText}</button></td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-
-                fillTable('buy-ads-tbody', finalBuys, 'Buy USDT', 'buy-action');
-                fillTable('sell-ads-tbody', finalSells, 'Sell USDT', 'sell-action');
+                fillTable('buy-ads-tbody', refineCollection(activeBuyAds), 'Buy USDT', 'buy-action');
+                fillTable('sell-ads-tbody', refineCollection(activeSellAds), 'Sell USDT', 'sell-action');
             }
 
-            function setupIntervalLoop() {
-                if(updateIntervalId) clearInterval(updateIntervalId);
-                const ms = parseInt(document.getElementById('refresh-interval').value) || 10000;
-                updateIntervalId = setInterval(syncPipelineContext, ms);
+            function fillTable(tbodyId, dataList, actionText, actionClass) {
+                const tbody = document.getElementById(tbodyId);
+                tbody.innerHTML = '';
+                if(dataList.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:20px;">No matching ads found.</td></tr>`;
+                    return;
+                }
+
+                dataList.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const payments = item.adDetail.paymentMethods.map(p => `<span class="badge">${p.tradeMethodName}</span>`).join(' ');
+                    
+                    tr.innerHTML = `
+                        <td>
+                            <div class="merchant-badge">
+                                <span class="status-dot ${item.adv.isOnline ? 'online' : 'offline'}"></span>
+                                <span class="merchant-name">${item.adv.name}</span>
+                            </div>
+                            <span class="merchant-stats">${item.adv.monthOrderCount} trades | ${item.adv.monthFinishRate}% rate</span>
+                        </td>
+                        <td style="font-size:0.95rem;font-weight:700;" class="${actionClass === 'buy-action' ? 'text-green' : 'text-red'}">
+                            ${parseFloat(item.adDetail.price).toFixed(2)} <span style="font-size:0.7rem;color:var(--text-secondary)">NPR</span>
+                        </td>
+                        <td>
+                            <div>Avbl: <strong>${parseFloat(item.adDetail.availableAmount).toFixed(2)} USDT</strong></div>
+                            <div style="color:var(--text-secondary);font-size:0.7rem;">Limits: Min ${item.adDetail.minSingleTransAmount} - Max ${item.adDetail.maxSingleTransAmount} NPR</div>
+                        </td>
+                        <td>${payments}</td>
+                        <td><button class="order-btn ${actionClass}">${actionText}</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
             }
 
             async function exportCSV() {
-                const currentData = await StorageSystem.getHistory(currentCategory);
-                if(currentData.length === 0) return alert("No stored timeseries history available to export.");
+                const currentData = await StorageSystem.getHistory(selectedCategory);
+                if(currentData.length === 0) return alert("No history profile blocks available to parse.");
                 
                 let csvContent = "data:text/csv;charset=utf-8,Timestamp,BuyPrice,SellPrice,Spread\n";
                 currentData.forEach(row => {
@@ -677,26 +731,21 @@
                 const dataUri = encodeURI(csvContent);
                 const link = document.createElement("a");
                 link.setAttribute("href", dataUri);
-                link.setAttribute("download", `p2p_npr_history_cat_${currentCategory}.csv`);
+                link.setAttribute("download", `p2p_npr_history_tier_${selectedCategory}.csv`);
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
             }
 
             function init() {
-                setupFilters();
+                setupFiltersUI();
                 DashboardChart.init();
                 
-                // Mount UI events triggers
-                document.getElementById('refresh-interval').addEventListener('change', setupIntervalLoop);
                 document.getElementById('export-csv').addEventListener('click', exportCSV);
-                
-                // Form event bindings
                 document.getElementById('merchant-search').addEventListener('input', renderMarketTables);
                 document.getElementById('payment-filter').addEventListener('change', renderMarketTables);
                 document.getElementById('market-sort').addEventListener('change', renderMarketTables);
 
-                // View Tab switching execution binding
                 document.querySelectorAll('.tab-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -706,31 +755,24 @@
                     });
                 });
 
-                // UI Theme Selector Mode Action Button logic
                 document.getElementById('theme-toggle').addEventListener('click', () => {
                     document.body.classList.toggle('light-theme');
                 });
 
-                // Start primary execution loop
-                syncPipelineContext();
-                setupIntervalLoop();
+                // Initialize processes and target infinite loop background sync arrays
+                refreshSelectedContextView();
+                startGlobalScannerLoop();
             }
 
             return { init };
         })();
 
         // ==========================================
-        // 5. APPLICATION KICKSTART INITIALIZER
+        // 5. BOOTSTRAP INITIALIZER
         // ==========================================
         window.addEventListener('DOMContentLoaded', async () => {
             await StorageSystem.init();
             TerminalApp.init();
-
-            // Register background-sync service worker components safely if supported
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('data:text/javascript;base64,Ly8gU2VydmljZSBXb3JrZXIgU3R1Yg==' || './sw.js', { scope: './' })
-                .catch(() => {/* Handle silent file omission safely */});
-            }
         });
     </script>
 </body>
